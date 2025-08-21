@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemCommandLine.Extensions.Tests", "SystemCommandLine.Extensions.Tests\SystemCommandLine.Extensions.Tests.csproj", "{E4B4BADB-7B83-4D80-B2D9-248E6B564005}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,18 @@ Global
 		{C23AED5F-F528-F96C-FE7A-3ED7364D7151}.Release|x64.Build.0 = Release|Any CPU
 		{C23AED5F-F528-F96C-FE7A-3ED7364D7151}.Release|x86.ActiveCfg = Release|Any CPU
 		{C23AED5F-F528-F96C-FE7A-3ED7364D7151}.Release|x86.Build.0 = Release|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Debug|x64.Build.0 = Debug|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Debug|x86.Build.0 = Debug|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Release|x64.ActiveCfg = Release|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Release|x64.Build.0 = Release|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Release|x86.ActiveCfg = Release|Any CPU
+		{E4B4BADB-7B83-4D80-B2D9-248E6B564005}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

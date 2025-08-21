@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
 {
     private static OptionsBuilder<TOptions> BindCommand<TCommand, TOptions>(this OptionsBuilder<TOptions> optionsBuilder)
         where TCommand : Command, IUseCommandBuilder<TCommand>
-        where TOptions : class, new()
+        where TOptions : class
     {
         optionsBuilder.Configure<TCommand, IOptions<CommandArgumentMapper<TCommand>>, ParseResult>((options, command, commandArgumentMappers, parseResult) =>
         {
@@ -26,7 +26,7 @@ public static class ServiceCollectionExtensions
     }
     public static IServiceCollection AddBoundToCommandOptions<TCommand, TOptions>(this IServiceCollection services)
         where TCommand : Command, IUseCommandBuilder<TCommand>
-        where TOptions : class, new()
+        where TOptions : class
     {
 
         services
@@ -35,6 +35,16 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddRootCommand<TRootCommand>(this IServiceCollection services, string[] args)
+    where TRootCommand : RootCommand, IUseCommandBuilder<TRootCommand>
+    {
+        services.AddCommand<TRootCommand>();
+        services.AddSingleton((sp) =>
+        {
+            return sp.GetRequiredService<TRootCommand>().Parse(args);
+        });
+        return services;
+    }
     public static IServiceCollection AddCommand<TCommand>(this IServiceCollection services)
         where TCommand : Command, IUseCommandBuilder<TCommand>
     {
@@ -64,6 +74,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCommandWithHandler<TCommand, THandler>(this IServiceCollection services) where TCommand : Command, IUseCommandBuilder<TCommand> where THandler : SynchronousCommandLineAction
     {
+        services.AddSingleton<THandler>();
+
         services.AddSingleton(sp =>
         {
             ArgumentMapperRegistration register = GetArgumentMapperRegistration<TCommand>(sp);

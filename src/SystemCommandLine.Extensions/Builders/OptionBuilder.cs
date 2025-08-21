@@ -5,15 +5,15 @@ using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-public class OptionBuilder<TCommand, TOptionHolder, TOption>(TCommand command, CommandArgumentBuilder<TCommand, TOptionHolder> commandHandlerBuilder, Expression<Func<TOptionHolder, TOption>> propertyExpression)
+public class OptionBuilder<TCommand, TOptionHolder, TOption>(TCommand command, CommandArgumentBuilder<TCommand, TOptionHolder> commandHandlerBuilder, Expression<Func<TOptionHolder, TOption>> propertyExpression, ArgumentMapperRegistration? mapperRegistration)
     where TCommand : Command, IUseCommandBuilder<TCommand>
     where TOptionHolder : class
 {
-    private readonly Option<TOption> option = new(ToKebabCase(Expressions.GetPropertyName(propertyExpression)));
+    private readonly Option<TOption> option = new(ToKebabCase(propertyExpression.GetPropertyName()));
 
     private static string ToKebabCase(string optionName)
     {
-        return NameExtensions.ToKebabCase("--", optionName);
+        return NameFormatExtensions.ToKebabCase("--", optionName);
     }
     public OptionBuilder<TCommand, TOptionHolder, TOption> Configure(Action<Option<TOption>> value)
     {
@@ -21,15 +21,15 @@ public class OptionBuilder<TCommand, TOptionHolder, TOption>(TCommand command, C
         return this;
     }
 
-    public CommandArgumentBuilder<TCommand, TOptionHolder> AddToCommand(ArgumentMapperRegistration? registerMapper = null)
+    public CommandArgumentBuilder<TCommand, TOptionHolder> AddToCommand()
     {
         command.Add(option);
 
-        if (registerMapper != null)
+        if (mapperRegistration != null)
         {
-            var argumentMapper = Expressions.CreateArgumentMapper(propertyExpression);
+            Action<TOptionHolder, TOption?> argumentMapper = propertyExpression.CreateArgumentMapper();
 
-            registerMapper((parsedResult, options) =>
+            mapperRegistration((parsedResult, options) =>
                 argumentMapper((TOptionHolder)options, parsedResult.GetValue<TOption>(option.Name)));
         }
         return commandHandlerBuilder;

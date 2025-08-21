@@ -13,19 +13,19 @@ namespace TestConsoleApp.RootCommand;
 
 internal class Root : System.CommandLine.RootCommand, IUseCommandBuilder<Root>
 {
-    public Root(ArgumentMapperRegistration register) : base("Sample ConsoleApp with DI and Serilog")
+    public Root(ArgumentMapperRegistration mapperRegistration) : base("Sample ConsoleApp with DI and Serilog")
     {
-        this.UsesCommandBuilder().With<LoggerOptions>()
+        this.UseCommandBuilder(mapperRegistration).With<LoggerOptions>()
             .NewOption(o => o.LogEventLevel).Configure(o =>
             {
                 o.Recursive = true;
                 o.DefaultValueFactory = _ => LogEventLevel.Information;
-            }).AddToCommand(register);
+            }).AddToCommand();
     }
 
-    public static Root CommandFactory(IServiceProvider sp, ArgumentMapperRegistration register)
+    public static Root CommandFactory(IServiceProvider sp, ArgumentMapperRegistration mapperRegistration)
     {
-        return new Root(register)
+        return new Root(mapperRegistration)
         {
             sp.GetRequiredService<Greet>(),
         };

@@ -10,28 +10,28 @@ namespace TestConsoleApp.RootCommand.GreetCommand;
 
 public class Greet : Command, IUseCommandBuilder<Greet>
 {
-    public Greet(ArgumentMapperRegistration register) : base(nameof(Greet).ToLower(), "Greets a person")
+    public Greet(ArgumentMapperRegistration mapperRegistration) : base(nameof(Greet).ToLower(), "Greets a person")
     {
-        this.UsesCommandBuilder().With<GreetOptions>()
+        this.UseCommandBuilder(mapperRegistration).With<GreetOptions>()
             .NewOption(x => x.Name).Configure(o =>
             {
                 o.Description = "Name of the person to greet";
                 o.DefaultValueFactory = _ => "World";
-            }).AddToCommand(register)
+            }).AddToCommand()
             .NewOption(x => x.Times).Configure(o =>
             {
                 o.Description = "Number of times to greet";
                 o.DefaultValueFactory = _ => 1;
-            }).AddToCommand(register)
+            }).AddToCommand()
             .NewOption(x => x.Shout).Configure(o =>
             {
                 o.Description = "Whether to shout the greeting";
-            }).AddToCommand(register);
+            }).AddToCommand();
     }
 
-    public static Greet CommandFactory(IServiceProvider sp, ArgumentMapperRegistration register)
+    public static Greet CommandFactory(IServiceProvider sp, ArgumentMapperRegistration mapperRegistration)
     {
-        return new Greet(register);
+        return new Greet(mapperRegistration);
     }
 }
 

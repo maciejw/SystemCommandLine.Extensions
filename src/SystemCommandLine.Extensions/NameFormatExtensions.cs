@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace ConsoleApp.CommandBuilders;
 
-internal static partial class NameExtensions
+internal static partial class NameFormatExtensions
 {
     public static string ToKebabCase(string prefix, string name)
     {
