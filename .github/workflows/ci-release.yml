@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # improve Source Link and versioning fidelity
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -36,14 +38,19 @@ jobs:
 
       - name: Pack (artifact only)
         if: startsWith(github.ref, 'refs/tags/v') == false
-        run: dotnet pack --configuration Release -o ./artifacts /p:ContinuousIntegrationBuild=true
+        run: >
+          dotnet pack ./src/SystemCommandLine.Extensions/SystemCommandLine.Extensions.csproj
+          --configuration Release --no-build -o ./artifacts
+          /p:ContinuousIntegrationBuild=true
 
-      - name: Upload package artifact (non-release)
+      - name: Upload package artifacts (non-release)
         if: startsWith(github.ref, 'refs/tags/v') == false
         uses: actions/upload-artifact@v4
         with:
-          name: nupkgs
-          path: ./artifacts/*.nupkg
+          name: packages
+          path: |
+            ./artifacts/*.nupkg
+            ./artifacts/*.snupkg
 
   publish_nuget:
     name: Publish to NuGet.org
@@ -55,6 +62,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # improve Source Link and versioning fidelity
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -74,13 +83,25 @@ jobs:
         run: dotnet build --configuration Release --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Pack (tagged version)
-        run: dotnet pack --configuration Release -o ./artifacts /p:ContinuousIntegrationBuild=true /p:Version=${{ steps.ver.outputs.VERSION }}
+        run: >
+          dotnet pack ./src/SystemCommandLine.Extensions/SystemCommandLine.Extensions.csproj
+          --configuration Release --no-build -o ./artifacts
+          /p:ContinuousIntegrationBuild=true /p:Version=${{ steps.ver.outputs.VERSION }}
 
-      - name: Push to NuGet.org
+      - name: Push to NuGet.org (.nupkg)
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           dotnet nuget push "./artifacts/SystemCommandLine.Extensions.*.nupkg" \
+            --api-key "$NUGET_API_KEY" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate
+
+      - name: Push to NuGet.org (.snupkg symbols)
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push "./artifacts/SystemCommandLine.Extensions.*.snupkg" \
             --api-key "$NUGET_API_KEY" \
             --source "https://api.nuget.org/v3/index.json" \
             --skip-duplicate
