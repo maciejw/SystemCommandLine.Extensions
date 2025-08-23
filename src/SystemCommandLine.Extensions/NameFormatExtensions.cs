@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
 
-namespace ConsoleApp.CommandBuilders;
+namespace SystemCommandLine.Extensions;
 
-internal static partial class NameFormatExtensions
+public static partial class NameFormatExtensions
 {
     public static string ToKebabCase(string prefix, string name)
     {

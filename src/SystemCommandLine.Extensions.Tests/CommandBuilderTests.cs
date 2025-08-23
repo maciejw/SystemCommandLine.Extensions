@@ -5,7 +5,6 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 
 namespace SystemCommandLine.Extensions.Tests;
-
 public class CommandBuilderTests
 {
     private class TestRootCommand : RootCommand, IUseCommandBuilder<TestRootCommand>
@@ -67,8 +66,8 @@ public class CommandBuilderTests
         }
     }
 
-    [Fact("Should run synchronous handler")]
-    public void Test1()
+    [Fact]
+    public void Should_run_synchronous_handler()
     {
         IServiceCollection services = new ServiceCollection()
             .AddRootCommand<TestRootCommand>("test --name MyTest --count 5".Split(" "))
@@ -90,8 +89,8 @@ public class CommandBuilderTests
         Assert.Matches(@"Running test 'MyTest' 5 times\.", configuration.Output.ToString());
     }
 
-    [Fact("Should run asynchronous handler")]
-    public async Task Test2()
+    [Fact]
+    public async Task Should_run_asynchronous_handler()
     {
         IServiceCollection services = new ServiceCollection()
             .AddRootCommand<TestRootCommand>("test --name MyTest --count 5".Split(" "))

@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace SystemCommandLine.Extensions;
 
-internal static class ExpressionExtensions
+public static class ExpressionExtensions
 {
     public static string GetPropertyName<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TOptionHolder, TOption>(this Expression<Func<TOptionHolder, TOption>> propertyExpression)
     {
