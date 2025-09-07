@@ -12,11 +12,28 @@ public class Greet : Command, IUseCommandBuilder<Greet>
 {
     public Greet(ArgumentMapperRegistration mapperRegistration) : base(nameof(Greet).ToLower(), "Greets a person")
     {
-        this.UseCommandBuilder(mapperRegistration).With<GreetOptions>()
+        this.UseCommandBuilder()
+            .NewOption<string>("prefix").Configure(o =>
+            {
+                string[] values = ["Sir", "Mr", "Lord"];
+                o.DefaultValueFactory = _ => "Mr";
+                o.Validators.Add(r =>
+                {
+                    string? value = r.GetValue<string>("--prefix");
+                    if (!values.Contains(value))
+                    {
+                        r.AddError($"The value '{value}' is not allowed for --prefix. Valid values are {string.Join(", ", values)}");
+                    }
+                });
+                o.CompletionSources.Add(values);
+                o.Description = "An example option without DI mapping";
+            }).AddToCommand()
+
+            .WithMapping<GreetOptions>(mapperRegistration)
             .NewOption(x => x.Name).Configure(o =>
             {
+                o.Required = true;
                 o.Description = "Name of the person to greet";
-                o.DefaultValueFactory = _ => "World";
             }).AddToCommand()
             .NewOption(x => x.Times).Configure(o =>
             {
@@ -37,8 +54,8 @@ public class Greet : Command, IUseCommandBuilder<Greet>
 
 public class GreetOptions
 {
-    public string Name { get; set; } = "World";
-    public int Times { get; set; } = 1;
+    public required string Name { get; set; }
+    public int Times { get; set; }
     public bool Shout { get; set; }
 }
 
@@ -55,11 +72,13 @@ public class GreetHandler(IOptions<GreetOptions> options, ILogger<GreetHandler> 
             name = name.ToUpper();
         }
 
+        string prefix = parseResult.GetRequiredValue<string>("--prefix");
+
         for (int i = 0; i < options.Value.Times; i++)
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation("Hello, {name}!", name);
+                logger.LogInformation("Hello, {prefix} {name}!", prefix, name);
             }
         }
         return 0;

@@ -1,18 +1,22 @@
 using System.CommandLine;
-using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-public class CommandArgumentBuilder<TCommand, TOptionHolder>(TCommand command, ArgumentMapperRegistration? mapperRegistration)
+public class CommandArgumentBuilder<TCommand, TOption>(CommandBuilder<TCommand> commandBuilder, TCommand command, string name)
     where TCommand : Command, IUseCommandBuilder<TCommand>
-    where TOptionHolder : class
 {
-    public OptionBuilder<TCommand, TOptionHolder, TOption> NewOption<TOption>(Expression<Func<TOptionHolder, TOption>> propertyExpression)
+    protected readonly Option<TOption> option = new(NameFormatExtensions.ToKebabCase("--", name));
+
+    public virtual CommandArgumentBuilder<TCommand, TOption> Configure(Action<Option<TOption>> value)
     {
-        return new OptionBuilder<TCommand, TOptionHolder, TOption>(command, this, propertyExpression, mapperRegistration);
+        value.Invoke(option);
+        return this;
     }
-    public TCommand GetCommand()
+
+    public virtual CommandBuilder<TCommand> AddToCommand()
     {
-        return command;
+        command.Add(option);
+
+        return commandBuilder;
     }
 }

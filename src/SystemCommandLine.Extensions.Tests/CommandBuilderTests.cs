@@ -21,7 +21,7 @@ public class CommandBuilderTests
     {
         public TestCommand(ArgumentMapperRegistration mapperRegistration) : base("test", "A test command")
         {
-            this.UseCommandBuilder(mapperRegistration).With<TestCommandOptions>()
+            this.UseCommandBuilder().WithMapping<TestCommandOptions>(mapperRegistration)
                 .NewOption(x => x.Name).Configure(o =>
                 {
                     o.Description = "Name of the test";
@@ -31,7 +31,8 @@ public class CommandBuilderTests
                 {
                     o.Description = "Count for the test";
                     o.DefaultValueFactory = _ => 1;
-                }).AddToCommand();
+                }).AddToCommand().CommandBuilder()
+                .NewOption<string>("NotMappedOption").AddToCommand();
         }
         public static TestCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) => new(mapperRegistration);
 
@@ -44,8 +45,10 @@ public class CommandBuilderTests
         {
             public override int Invoke(ParseResult parseResult)
             {
+                string notMappedOption = parseResult.GetRequiredValue<string>(NameFormatExtensions.ToKebabCase("--", nameof(notMappedOption)));
+
                 parseResult.InvocationConfiguration
-                    .Output.WriteLine($"Running test '{options.Value.Name}' {options.Value.Count} times.");
+                    .Output.WriteLine($"Running test '{options.Value.Name}' {options.Value.Count} times {notMappedOption}");
 
                 parseResult.InvocationConfiguration
                     .Error.WriteLine($"Error message");
@@ -56,8 +59,9 @@ public class CommandBuilderTests
         {
             public override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken)
             {
+                string notMappedOption = parseResult.GetRequiredValue<string>(NameFormatExtensions.ToKebabCase("--", nameof(notMappedOption)));
                 parseResult.InvocationConfiguration
-                    .Output.WriteLine($"Running test '{options.Value.Name}' {options.Value.Count} times.");
+                    .Output.WriteLine($"Running test '{options.Value.Name}' {options.Value.Count} times {notMappedOption}");
 
                 parseResult.InvocationConfiguration
                     .Error.WriteLine($"Error message");
@@ -70,7 +74,7 @@ public class CommandBuilderTests
     public void Should_run_synchronous_handler()
     {
         IServiceCollection services = new ServiceCollection()
-            .AddRootCommand<TestRootCommand>("test --name MyTest --count 5".Split(" "))
+            .AddRootCommand<TestRootCommand>("test --name MyTest --count 5 --not-mapped-option !!!".Split(" "))
             .AddCommandWithHandler<TestCommand, TestCommand.TestHandler>()
             .AddBoundToCommandOptions<TestCommand, TestCommand.TestCommandOptions>()
             ;
@@ -86,14 +90,14 @@ public class CommandBuilderTests
         int result = parserResult.Invoke(configuration);
         Assert.Matches(@"Error message", configuration.Error.ToString());
         Assert.Equal(42, result);
-        Assert.Matches(@"Running test 'MyTest' 5 times\.", configuration.Output.ToString());
+        Assert.Matches(@"Running test 'MyTest' 5 times !!!", configuration.Output.ToString());
     }
 
     [Fact]
     public async Task Should_run_asynchronous_handler()
     {
         IServiceCollection services = new ServiceCollection()
-            .AddRootCommand<TestRootCommand>("test --name MyTest --count 5".Split(" "))
+            .AddRootCommand<TestRootCommand>("test --name MyTest --count 5 --not-mapped-option !!!".Split(" "))
             .AddCommandWithAsyncHandler<TestCommand, TestCommand.TestAsyncHandler>()
             .AddBoundToCommandOptions<TestCommand, TestCommand.TestCommandOptions>()
             ;
@@ -110,6 +114,6 @@ public class CommandBuilderTests
 
         Assert.Matches(@"Error message", configuration.Error.ToString());
         Assert.Equal(42, result);
-        Assert.Matches(@"Running test 'MyTest' 5 times\.", configuration.Output.ToString());
+        Assert.Matches(@"Running test 'MyTest' 5 times !!!", configuration.Output.ToString());
     }
 }

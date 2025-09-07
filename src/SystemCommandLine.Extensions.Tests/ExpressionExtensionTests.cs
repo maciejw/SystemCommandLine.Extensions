@@ -1,6 +1,3 @@
-using System;
-using System.Linq.Expressions;
-
 namespace SystemCommandLine.Extensions.Tests;
 
 public class ExpressionExtensionTests
@@ -18,7 +15,7 @@ public class ExpressionExtensionTests
     public void GetPropertyName_Returns_Property_Name()
     {
         // Act
-        var name = ExpressionExtensions.GetPropertyName<Holder, string?>(h => h.Name);
+        string name = ExpressionExtensions.GetPropertyName<Holder, string?>(h => h.Name);
 
         // Assert
         Assert.Equal("Name", name);
@@ -28,8 +25,8 @@ public class ExpressionExtensionTests
     public void CreateArgumentMapper_Sets_Reference_Type_Property_Value()
     {
         // Arrange
-        var setter = ExpressionExtensions.CreateArgumentMapper<Holder, string?>(h => h.Name);
-        var holder = new Holder();
+        Action<Holder, string?> setter = ExpressionExtensions.CreateArgumentMapper<Holder, string?>(h => h.Name);
+        Holder holder = new Holder();
 
         // Act
         setter(holder, "value");
@@ -42,8 +39,8 @@ public class ExpressionExtensionTests
     public void CreateArgumentMapper_Sets_Value_Type_Property_Value()
     {
         // Arrange
-        var setter = ExpressionExtensions.CreateArgumentMapper<Holder, int>(h => h.Number);
-        var holder = new Holder();
+        Action<Holder, int> setter = ExpressionExtensions.CreateArgumentMapper<Holder, int>(h => h.Number);
+        Holder holder = new Holder();
 
         // Act
         setter(holder, 42);
@@ -56,7 +53,7 @@ public class ExpressionExtensionTests
     public void CreateArgumentMapper_Throws_When_Setter_Is_Not_Public()
     {
         // Act
-        var ex = Assert.Throws<ArgumentException>(() =>
+        ArgumentException ex = Assert.Throws<ArgumentException>(() =>
             ExpressionExtensions.CreateArgumentMapper<Holder, string>(h => h.WithPrivateSetter));
 
         // Assert
@@ -67,7 +64,7 @@ public class ExpressionExtensionTests
     public void CreateArgumentMapper_Throws_When_Property_Has_No_Setter()
     {
         // Act
-        var ex = Assert.Throws<ArgumentException>(() =>
+        ArgumentException ex = Assert.Throws<ArgumentException>(() =>
             ExpressionExtensions.CreateArgumentMapper<Holder, string>(h => h.ReadOnly));
 
         // Assert
@@ -78,7 +75,7 @@ public class ExpressionExtensionTests
     public void GetPropertyName_Throws_When_Expression_Is_Field_Access()
     {
         // Act
-        var ex = Assert.Throws<ArgumentException>(() =>
+        ArgumentException ex = Assert.Throws<ArgumentException>(() =>
             ExpressionExtensions.GetPropertyName<Holder, string>(h => h.Field));
 
         // Assert
@@ -89,7 +86,7 @@ public class ExpressionExtensionTests
     public void GetPropertyName_Throws_When_Expression_Is_Method_Call()
     {
         // Act
-        var ex = Assert.Throws<ArgumentException>(() =>
+        ArgumentException ex = Assert.Throws<ArgumentException>(() =>
             ExpressionExtensions.GetPropertyName<Holder, string?>(h => h.ToString()));
 
         // Assert

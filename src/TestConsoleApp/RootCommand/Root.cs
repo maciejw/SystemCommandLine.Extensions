@@ -15,7 +15,7 @@ internal class Root : System.CommandLine.RootCommand, IUseCommandBuilder<Root>
 {
     public Root(ArgumentMapperRegistration mapperRegistration) : base("Sample ConsoleApp with DI and Serilog")
     {
-        this.UseCommandBuilder(mapperRegistration).With<LoggerOptions>()
+        this.UseCommandBuilder().WithMapping<LoggerOptions>(mapperRegistration)
             .NewOption(o => o.LogEventLevel).Configure(o =>
             {
                 o.Recursive = true;

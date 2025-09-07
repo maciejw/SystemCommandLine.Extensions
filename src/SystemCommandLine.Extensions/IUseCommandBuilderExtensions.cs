@@ -8,10 +8,10 @@ namespace SystemCommandLine.Extensions;
 
 public static class IUseCommandBuilderExtensions
 {
-    public static CommandBuilder<TCommand> UseCommandBuilder<TCommand>(this TCommand command, ArgumentMapperRegistration? mapperRegistration = null)
+    public static CommandBuilder<TCommand> UseCommandBuilder<TCommand>(this TCommand command)
        where TCommand : Command, IUseCommandBuilder<TCommand>
     {
-        return new CommandBuilder<TCommand>(command, mapperRegistration);
+        return new CommandBuilder<TCommand>(command);
     }
 
 }

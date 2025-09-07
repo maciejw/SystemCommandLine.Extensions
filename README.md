@@ -35,7 +35,7 @@ public class Greet : Command, IUseCommandBuilder<Greet>
 		: base("greet", "Greets a person")
 	{
 		// Describe options using your options type and expressions
-		this.UseCommandBuilder(mapperRegistration).With<GreetOptions>()
+		this.UseCommandBuilder().WithMapper<GreetOptions>(mapperRegistration)
 			.NewOption(o => o.Name).Configure(o =>
 			{
 				o.Description = "Name to greet";
@@ -54,8 +54,8 @@ public class Greet : Command, IUseCommandBuilder<Greet>
 
 public class GreetOptions
 {
-	public string Name { get; set; } = "World";
-	public int Times { get; set; } = 1;
+	public string Name { get; set; }
+	public int Times { get; set; }
 }
 ```
 

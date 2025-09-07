@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-public class OptionBuilder<TCommand, TOptionHolder, TOption>(TCommand command, CommandArgumentBuilder<TCommand, TOptionHolder> commandHandlerBuilder, Expression<Func<TOptionHolder, TOption>> propertyExpression, ArgumentMapperRegistration? mapperRegistration)
+public class CommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption>(TCommand command, CommandBuilderWithMapping<TCommand, TOptionHolder> commandHandlerBuilder, Expression<Func<TOptionHolder, TOption>> propertyExpression, ArgumentMapperRegistration? mapperRegistration)
     where TCommand : Command, IUseCommandBuilder<TCommand>
     where TOptionHolder : class
 {
@@ -13,13 +13,13 @@ public class OptionBuilder<TCommand, TOptionHolder, TOption>(TCommand command, C
     {
         return NameFormatExtensions.ToKebabCase("--", optionName);
     }
-    public OptionBuilder<TCommand, TOptionHolder, TOption> Configure(Action<Option<TOption>> value)
+    public CommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption> Configure(Action<Option<TOption>> value)
     {
         value.Invoke(option);
         return this;
     }
 
-    public CommandArgumentBuilder<TCommand, TOptionHolder> AddToCommand()
+    public CommandBuilderWithMapping<TCommand, TOptionHolder> AddToCommand()
     {
         command.Add(option);
 
