@@ -10,7 +10,6 @@ using TestConsoleApp.RootCommand.GreetCommand;
 
 namespace TestConsoleApp.RootCommand;
 
-
 internal class Root : System.CommandLine.RootCommand, IUseCommandBuilder<Root>
 {
     public Root(ArgumentMapperRegistration mapperRegistration) : base("Sample ConsoleApp with DI and Serilog")

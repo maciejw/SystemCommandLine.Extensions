@@ -25,7 +25,7 @@ public class ExpressionExtensionTests
     public void CreateArgumentMapper_Sets_Reference_Type_Property_Value()
     {
         // Arrange
-        Action<Holder, string?> setter = ExpressionExtensions.CreateArgumentMapper<Holder, string?>(h => h.Name);
+        Action<Holder, string?> setter = ExpressionExtensions.CreateArgumentValueMapper<Holder, string?>(h => h.Name);
         Holder holder = new Holder();
 
         // Act
@@ -39,7 +39,7 @@ public class ExpressionExtensionTests
     public void CreateArgumentMapper_Sets_Value_Type_Property_Value()
     {
         // Arrange
-        Action<Holder, int> setter = ExpressionExtensions.CreateArgumentMapper<Holder, int>(h => h.Number);
+        Action<Holder, int> setter = ExpressionExtensions.CreateArgumentValueMapper<Holder, int>(h => h.Number);
         Holder holder = new Holder();
 
         // Act
@@ -54,7 +54,7 @@ public class ExpressionExtensionTests
     {
         // Act
         ArgumentException ex = Assert.Throws<ArgumentException>(() =>
-            ExpressionExtensions.CreateArgumentMapper<Holder, string>(h => h.WithPrivateSetter));
+            ExpressionExtensions.CreateArgumentValueMapper<Holder, string>(h => h.WithPrivateSetter));
 
         // Assert
         Assert.Equal("Property Holder.WithPrivateSetter has no accessible setter.", ex.Message);
@@ -65,7 +65,7 @@ public class ExpressionExtensionTests
     {
         // Act
         ArgumentException ex = Assert.Throws<ArgumentException>(() =>
-            ExpressionExtensions.CreateArgumentMapper<Holder, string>(h => h.ReadOnly));
+            ExpressionExtensions.CreateArgumentValueMapper<Holder, string>(h => h.ReadOnly));
 
         // Assert
         Assert.Equal("Property Holder.ReadOnly has no accessible setter.", ex.Message);

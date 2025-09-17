@@ -1,4 +1,5 @@
 namespace SystemCommandLine.Extensions.Tests;
+
 public class NameFormatExtensionsTests
 {
     [Theory]

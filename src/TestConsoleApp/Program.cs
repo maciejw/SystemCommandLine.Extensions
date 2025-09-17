@@ -27,9 +27,8 @@ internal class Program
             services.AddRootCommand<Root>(args);
             services.AddBoundToCommandOptions<Root, LoggerOptions>();
 
-            services.AddCommandWithAsyncHandler<Greet, GreetHandler>();
-            services.AddBoundToCommandOptions<Greet, GreetOptions>();
-
+            services.AddCommandWithAsyncHandler<Greet, Greet.GreetHandler>();
+            services.AddBoundToCommandOptions<Greet, Greet.GreetOptions>();
         });
 
         IHost host = hostBuilder.Start();

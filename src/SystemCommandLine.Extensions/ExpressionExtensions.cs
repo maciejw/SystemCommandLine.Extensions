@@ -11,7 +11,7 @@ public static class ExpressionExtensions
         return propertyExpression.ExtractProperty().Name;
     }
 
-    public static Action<TOptionHolder, TOption?> CreateArgumentMapper<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TOptionHolder, TOption>(this Expression<Func<TOptionHolder, TOption>> propertyExpression) where TOptionHolder : class
+    public static Action<TOptionHolder, TOption?> CreateArgumentValueMapper<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TOptionHolder, TOption>(this Expression<Func<TOptionHolder, TOption>> propertyExpression) where TOptionHolder : class
     {
         PropertyInfo propertyInfo = propertyExpression.ExtractProperty();
 
@@ -20,7 +20,7 @@ public static class ExpressionExtensions
             throw new ArgumentException($"Property {propertyInfo.DeclaringType!.Name}.{propertyInfo.Name} has no accessible setter.");
         }
 
-        return (Action<TOptionHolder, TOption?>)propertyInfo.SetMethod.CreateDelegate(typeof(Action<TOptionHolder, TOption?>));
+        return propertyInfo.SetMethod.CreateDelegate<Action<TOptionHolder, TOption?>>();
     }
 
     private static PropertyInfo ExtractProperty<THolder, TProp>(

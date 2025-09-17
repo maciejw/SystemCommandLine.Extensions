@@ -28,7 +28,6 @@ public class Greet : Command, IUseCommandBuilder<Greet>
                 o.CompletionSources.Add(values);
                 o.Description = "An example option without DI mapping";
             }).AddToCommand()
-
             .WithMapping<GreetOptions>(mapperRegistration)
             .NewOption(x => x.Name).Configure(o =>
             {
@@ -50,37 +49,37 @@ public class Greet : Command, IUseCommandBuilder<Greet>
     {
         return new Greet(mapperRegistration);
     }
-}
 
-public class GreetOptions
-{
-    public required string Name { get; set; }
-    public int Times { get; set; }
-    public bool Shout { get; set; }
-}
-
-public class GreetHandler(IOptions<GreetOptions> options, ILogger<GreetHandler> logger) : AsynchronousCommandLineAction
-{
-    public async override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
+    public class GreetOptions
     {
-        await Task.CompletedTask;
-        logger.LogDebug("greet");
-        logger.LogTrace("greet");
-        string name = options.Value.Name;
-        if (options.Value.Shout == true)
-        {
-            name = name.ToUpper();
-        }
+        public required string Name { get; set; }
+        public int Times { get; set; }
+        public bool Shout { get; set; }
+    }
 
-        string prefix = parseResult.GetRequiredValue<string>("--prefix");
-
-        for (int i = 0; i < options.Value.Times; i++)
+    public class GreetHandler(IOptions<GreetOptions> options, ILogger<GreetHandler> logger) : AsynchronousCommandLineAction
+    {
+        public async override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
         {
-            if (logger.IsEnabled(LogLevel.Information))
+            await Task.CompletedTask;
+            logger.LogDebug("greet");
+            logger.LogTrace("greet");
+            string name = options.Value.Name;
+            if (options.Value.Shout == true)
             {
-                logger.LogInformation("Hello, {prefix} {name}!", prefix, name);
+                name = name.ToUpper();
             }
+
+            string prefix = parseResult.GetRequiredValue<string>("--prefix");
+
+            for (int i = 0; i < options.Value.Times; i++)
+            {
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.LogInformation("Hello, {prefix} {name}!", prefix, name);
+                }
+            }
+            return 0;
         }
-        return 0;
     }
 }

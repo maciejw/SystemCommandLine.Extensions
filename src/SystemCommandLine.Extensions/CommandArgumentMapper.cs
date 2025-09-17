@@ -2,7 +2,7 @@
 
 namespace SystemCommandLine.Extensions;
 
-public delegate void OptionMapper(ParseResult parseResult, object options);
-public delegate void ArgumentMapperRegistration(OptionMapper mapper);
+public delegate void ArgumentMapper(ParseResult parseResult, object options);
+public delegate void ArgumentMapperRegistration(ArgumentMapper mapper);
 
-public class CommandArgumentMapper<TCommand> : List<OptionMapper> { }
+internal class CommandArgumentMapper<TCommand> : List<ArgumentMapper> { }

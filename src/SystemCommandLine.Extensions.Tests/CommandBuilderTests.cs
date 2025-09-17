@@ -5,6 +5,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 
 namespace SystemCommandLine.Extensions.Tests;
+
 public class CommandBuilderTests
 {
     private class TestRootCommand : RootCommand, IUseCommandBuilder<TestRootCommand>
@@ -32,7 +33,10 @@ public class CommandBuilderTests
                     o.Description = "Count for the test";
                     o.DefaultValueFactory = _ => 1;
                 }).AddToCommand().CommandBuilder()
-                .NewOption<string>("NotMappedOption").AddToCommand();
+                .NewOption<string>("NotMappedOption").Configure(o =>
+                {
+                    o.Description = "An option that is not mapped to the options class";
+                }).AddToCommand();
         }
         public static TestCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) => new(mapperRegistration);
 

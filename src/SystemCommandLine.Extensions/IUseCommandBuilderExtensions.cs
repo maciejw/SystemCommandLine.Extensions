@@ -8,10 +8,9 @@ namespace SystemCommandLine.Extensions;
 
 public static class IUseCommandBuilderExtensions
 {
-    public static CommandBuilder<TCommand> UseCommandBuilder<TCommand>(this TCommand command)
+    public static ICommandBuilder<TCommand> UseCommandBuilder<TCommand>(this TCommand command)
        where TCommand : Command, IUseCommandBuilder<TCommand>
     {
         return new CommandBuilder<TCommand>(command);
     }
-
 }
