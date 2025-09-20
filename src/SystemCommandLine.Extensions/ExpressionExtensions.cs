@@ -20,7 +20,14 @@ public static class ExpressionExtensions
             throw new ArgumentException($"Property {propertyInfo.DeclaringType!.Name}.{propertyInfo.Name} has no accessible setter.");
         }
 
-        return propertyInfo.SetMethod.CreateDelegate<Action<TOptionHolder, TOption?>>();
+        var valueSetter = propertyInfo.SetMethod.CreateDelegate<Action<TOptionHolder, TOption>>();
+        return (optionHolder, value) =>
+        {
+            if (value != null)
+            {
+                valueSetter(optionHolder, value);
+            }
+        };
     }
 
     private static PropertyInfo ExtractProperty<THolder, TProp>(

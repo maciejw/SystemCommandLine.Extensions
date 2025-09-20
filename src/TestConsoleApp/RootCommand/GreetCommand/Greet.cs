@@ -37,7 +37,6 @@ public class Greet : Command, IUseCommandBuilder<Greet>
             .NewOption(x => x.Times).Configure(o =>
             {
                 o.Description = "Number of times to greet";
-                o.DefaultValueFactory = _ => 1;
             }).AddToCommand()
             .NewOption(x => x.Shout).Configure(o =>
             {
@@ -53,7 +52,7 @@ public class Greet : Command, IUseCommandBuilder<Greet>
     public class GreetOptions
     {
         public required string Name { get; set; }
-        public int Times { get; set; }
+        public int Times { get; set; } = 5;
         public bool Shout { get; set; }
     }
 

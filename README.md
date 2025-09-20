@@ -98,7 +98,7 @@ common patterns in real apps:
 ### Requirements
 
 - .NET 8.0+
-- System.CommandLine 2.0.0 (preview)
+- System.CommandLine 2.0.0
 
 ### License
 

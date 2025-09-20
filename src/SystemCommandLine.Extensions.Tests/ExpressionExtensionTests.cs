@@ -4,15 +4,15 @@ public class ExpressionExtensionTests
 {
     private class Holder
     {
-        public string? Name { get; set; }
+        public string Name { get; set; } = "default-value";
         public int Number { get; set; }
-        public string ReadOnly => "ro";
+        public string ReadOnly { get; private set; } = "ro";
         public string WithPrivateSetter { get; private set; } = string.Empty;
         public string Field = string.Empty;
     }
 
     [Fact]
-    public void GetPropertyName_Returns_Property_Name()
+    public void GetPropertyName_returns_property_name()
     {
         // Act
         string name = ExpressionExtensions.GetPropertyName<Holder, string?>(h => h.Name);
@@ -22,35 +22,49 @@ public class ExpressionExtensionTests
     }
 
     [Fact]
-    public void CreateArgumentMapper_Sets_Reference_Type_Property_Value()
+    public void CreateArgumentMapper_sets_reference_type_property_value()
     {
         // Arrange
-        Action<Holder, string?> setter = ExpressionExtensions.CreateArgumentValueMapper<Holder, string?>(h => h.Name);
-        Holder holder = new Holder();
+        Action<Holder, string?> mapper = ExpressionExtensions.CreateArgumentValueMapper<Holder, string?>(h => h.Name);
+        Holder holder = new();
 
         // Act
-        setter(holder, "value");
+        mapper(holder, "value");
 
         // Assert
         Assert.Equal("value", holder.Name);
     }
 
     [Fact]
-    public void CreateArgumentMapper_Sets_Value_Type_Property_Value()
+    public void CreateArgumentMapper_does_not_set_null_value()
     {
         // Arrange
-        Action<Holder, int> setter = ExpressionExtensions.CreateArgumentValueMapper<Holder, int>(h => h.Number);
-        Holder holder = new Holder();
+        Action<Holder, string?> mapper = ExpressionExtensions.CreateArgumentValueMapper<Holder, string?>(h => h.Name);
+        Holder holder = new();
 
         // Act
-        setter(holder, 42);
+        mapper(holder, null);
+
+        // Assert
+        Assert.Equal("default-value", holder.Name);
+    }
+
+    [Fact]
+    public void CreateArgumentMapper_sets_value_type_property_value()
+    {
+        // Arrange
+        Action<Holder, int> mapper = ExpressionExtensions.CreateArgumentValueMapper<Holder, int>(h => h.Number);
+        Holder holder = new();
+
+        // Act
+        mapper(holder, 42);
 
         // Assert
         Assert.Equal(42, holder.Number);
     }
 
     [Fact]
-    public void CreateArgumentMapper_Throws_When_Setter_Is_Not_Public()
+    public void CreateArgumentMapper_throws_when_setter_is_not_public()
     {
         // Act
         ArgumentException ex = Assert.Throws<ArgumentException>(() =>
@@ -61,7 +75,7 @@ public class ExpressionExtensionTests
     }
 
     [Fact]
-    public void CreateArgumentMapper_Throws_When_Property_Has_No_Setter()
+    public void CreateArgumentMapper_throws_when_property_has_no_setter()
     {
         // Act
         ArgumentException ex = Assert.Throws<ArgumentException>(() =>
@@ -72,7 +86,7 @@ public class ExpressionExtensionTests
     }
 
     [Fact]
-    public void GetPropertyName_Throws_When_Expression_Is_Field_Access()
+    public void GetPropertyName_throws_when_expression_is_field_access()
     {
         // Act
         ArgumentException ex = Assert.Throws<ArgumentException>(() =>
@@ -83,7 +97,7 @@ public class ExpressionExtensionTests
     }
 
     [Fact]
-    public void GetPropertyName_Throws_When_Expression_Is_Method_Call()
+    public void GetPropertyName_throws_when_expression_is_method_call()
     {
         // Act
         ArgumentException ex = Assert.Throws<ArgumentException>(() =>
