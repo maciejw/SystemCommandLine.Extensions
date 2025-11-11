@@ -26,7 +26,6 @@ internal class Program
         {
             services.AddRootCommand<Root>(args);
             services.AddBoundToCommandOptions<Root, LoggerOptions>();
-
             services.AddCommandWithAsyncHandler<Greet, Greet.GreetHandler>();
             services.AddBoundToCommandOptions<Greet, Greet.GreetOptions>();
         });

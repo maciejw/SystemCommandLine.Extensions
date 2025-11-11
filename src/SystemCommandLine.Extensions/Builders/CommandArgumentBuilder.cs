@@ -17,4 +17,5 @@ internal class CommandArgumentBuilder<TCommand, TOption>(ICommandBuilder<TComman
         command.Add(option);
         return commandBuilder;
     }
+    public virtual Option<TOption> Option => option;
 }

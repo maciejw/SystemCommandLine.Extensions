@@ -8,7 +8,7 @@ using SystemCommandLine.Extensions;
 
 namespace TestConsoleApp.RootCommand.GreetCommand;
 
-public class Greet : Command, IUseCommandBuilder<Greet>
+public class Greet : Command, IUseCommandBuilder<Greet>, ISubCommandOf<Root>
 {
     public Greet(ArgumentMapperRegistration mapperRegistration) : base(nameof(Greet).ToLower(), "Greets a person")
     {

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Text.RegularExpressions;
 
 namespace SystemCommandLine.Extensions.Tests;
 
@@ -12,13 +13,23 @@ public class CommandBuilderTests
     {
         public static TestRootCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration)
         {
-            return new TestRootCommand() {
-                serviceProvider.GetRequiredService<TestCommand>()
-            };
+            return new TestRootCommand().AddRegisteredSubCommands(serviceProvider);
         }
     }
 
-    private class TestCommand : Command, IUseCommandBuilder<TestCommand>
+    private class EmptyCommand : Command, IUseCommandBuilder<EmptyCommand>
+    {
+        public EmptyCommand() : base(nameof(EmptyCommand))
+        {
+        }
+
+        public static EmptyCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration)
+        {
+            return new EmptyCommand();
+        }
+    }
+
+    private class TestCommand : Command, IUseCommandBuilder<TestCommand>, ISubCommandOf<TestRootCommand>
     {
         public TestCommand(ArgumentMapperRegistration mapperRegistration) : base("test", "A test command")
         {
@@ -86,18 +97,17 @@ public class CommandBuilderTests
         IServiceCollection services = new ServiceCollection()
             .AddRootCommand<TestRootCommand>(args.Split(" "))
             .AddBoundToCommandOptions<TestCommand, TestCommand.TestCommandOptions>();
-        return setup(services).BuildServiceProvider();
+        services = setup(services);
+        return services.BuildServiceProvider();
     }
     private static ServiceProvider GetServiceProviderWithAsyncHandler(string args)
     {
-        return GetServiceProvider(args, services => services
-                .AddCommandWithAsyncHandler<TestCommand, TestCommand.TestAsyncHandler>());
+        return GetServiceProvider(args, services => services.AddCommandWithAsyncHandler<TestCommand, TestCommand.TestAsyncHandler>());
     }
 
     private static ServiceProvider GetServiceProviderWithHandler(string args)
     {
-        return GetServiceProvider(args, services => services
-                .AddCommandWithHandler<TestCommand, TestCommand.TestHandler>());
+        return GetServiceProvider(args, services => services.AddCommandWithHandler<TestCommand, TestCommand.TestHandler>());
     }
     [Fact]
     public void Should_run_synchronous_handler()
@@ -151,5 +161,43 @@ public class CommandBuilderTests
 
         Assert.Equal(42, result);
         Assert.Matches(@"Running sync test 'OptionDefault' 'PropertyDefault' 1 times !", configuration.Output.ToString());
+    }
+
+    [Fact]
+    public void Should_expose_option_from_builder()
+    {
+        var optionBuilder = new EmptyCommand().UseCommandBuilder()
+            .NewOption<string>("MyOption");
+
+        Option<string> option = optionBuilder.Option;
+
+        Assert.Equal("--my-option", option.Name);
+    }
+
+    [Fact]
+    public void Should_expose_option_from_mapped_builder()
+    {
+        var optionBuilder = new EmptyCommand().UseCommandBuilder().WithMapping<TestCommand.TestCommandOptions>(_ => { })
+            .NewOption(o => o.NameWithDefault);
+
+        Option<string> option = optionBuilder.Option;
+
+        Assert.Equal("--name-with-default", option.Name);
+    }
+
+    [Fact]
+    public void Should_throw_when_using_mapperRegistration_without_registering_options()
+    {
+        using var serviceProvider = new ServiceCollection()
+          .AddRootCommand<TestRootCommand>("".Split(" "))
+          .AddCommandWithHandler<TestCommand, TestCommand.TestHandler>()
+          .BuildServiceProvider();
+
+        var ex = Assert.Throws<InvalidOperationException>(() =>
+        {
+            _ = serviceProvider.GetRequiredService<ParseResult>();
+        });
+
+        Assert.Matches(Regex.Escape(@"Use services.AddBoundToCommandOptions<...>(...) during registration."), ex.Message);
     }
 }

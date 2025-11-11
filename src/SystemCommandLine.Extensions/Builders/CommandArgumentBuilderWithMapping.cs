@@ -38,4 +38,5 @@ internal class CommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOptio
 
         mapperRegistration(argumentMapper);
     }
+    public virtual Option<TOption> Option => option;
 }
