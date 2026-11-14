@@ -8,9 +8,9 @@ using SystemCommandLine.Extensions;
 
 namespace TestConsoleApp.RootCommand.GreetCommand;
 
-public class Greet : Command, IUseCommandBuilder<Greet>
+public class Greet : Command, ICommandDefinition<Greet>
 {
-    public Greet(ArgumentMapperRegistration mapperRegistration) : base(nameof(Greet).ToLower(), "Greets a person")
+    public Greet(SymbolMapperRegistration mapperRegistration) : base(nameof(Greet).ToLower(), "Greets a person")
     {
         this.UseCommandBuilder()
             .NewOption<string>("prefix").Configure(o =>
@@ -40,10 +40,7 @@ public class Greet : Command, IUseCommandBuilder<Greet>
         builder.WithAsyncHandler<GreetHandler>().BindOptions<GreetOptions>();
     }
 
-    public static Greet CommandFactory(IServiceProvider sp, ArgumentMapperRegistration mapperRegistration)
-    {
-        return new Greet(mapperRegistration);
-    }
+    public static Greet CreateCommand(IServiceProvider sp, SymbolMapperRegistration mapperRegistration) => new(mapperRegistration);
 
     private class GreetOptions
     {

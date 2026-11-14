@@ -26,8 +26,8 @@ internal class Program
         hostBuilder.ConfigureServices((ctx, services) =>
         {
             services.AddRootCommand<Root>(args)
-                .AddSubCommand<Greet>()
-                .AddSubCommand<Wave>();
+                .WithSubcommand<Greet>()
+                .WithSubcommand<Wave>();
 
             services.AddCommand<Greet>();
             services.AddCommand<Wave>();

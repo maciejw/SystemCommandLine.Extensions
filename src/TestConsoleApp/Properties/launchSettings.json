@@ -1,12 +1,12 @@
 {
   "profiles": {
-    "TestConsoleApp": {
-      "commandName": "Project",
-      "commandLineArgs": "greet --name John --shout --times 5 --log-event-level Debug"
-    },
     "Wave": {
       "commandName": "Project",
       "commandLineArgs": "wave John \"Good morning\" --shout"
+    },
+    "Greet": {
+      "commandName": "Project",
+      "commandLineArgs": "greet --name John --shout --times 5 --log-event-level Debug"
     }
   }
 }

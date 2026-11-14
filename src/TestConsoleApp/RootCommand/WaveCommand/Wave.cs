@@ -7,9 +7,9 @@ using SystemCommandLine.Extensions;
 
 namespace TestConsoleApp.RootCommand.WaveCommand;
 
-internal sealed class Wave : Command, IUseCommandBuilder<Wave>
+internal sealed class Wave : Command, ICommandDefinition<Wave>
 {
-    private Wave(ArgumentMapperRegistration mapperRegistration) : base("wave", "Waves to a person using positional arguments")
+    private Wave(SymbolMapperRegistration mapperRegistration) : base("wave", "Waves to a person using positional arguments")
     {
         this.UseCommandBuilder()
             .WithMapping<WaveOptions>(mapperRegistration)
@@ -29,8 +29,7 @@ internal sealed class Wave : Command, IUseCommandBuilder<Wave>
             }).AddToCommand();
     }
 
-    public static Wave CommandFactory(IServiceProvider sp, ArgumentMapperRegistration mapperRegistration)
-        => new(mapperRegistration);
+    public static Wave CreateCommand(IServiceProvider sp, SymbolMapperRegistration mapperRegistration) => new(mapperRegistration);
 
     public static void ConfigureRegistration(CommandRegistrationBuilder<Wave> builder)
         => builder.WithHandler<WaveHandler>().BindOptions<WaveOptions>();
