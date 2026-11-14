@@ -6,6 +6,12 @@ namespace SystemCommandLine.Extensions;
 /// <typeparam name="TCommand">The command being defined.</typeparam>
 public interface ICommandBuilder<TCommand> where TCommand : Command, IUseCommandBuilder<TCommand>
 {
+    /// <summary>Creates a positional argument with a kebab-case name.</summary>
+    /// <typeparam name="TValue">The parsed argument value type.</typeparam>
+    /// <param name="name">The argument name, without an option prefix.</param>
+    /// <returns>An argument builder; call AddToCommand to append the argument.</returns>
+    ICommandPositionalArgumentBuilder<TCommand, TValue> NewArgument<TValue>(string name);
+
     /// <summary>Creates an option builder using the supplied name formatted as a long kebab-case option.</summary>
     /// <typeparam name="TOption">The parsed option value type.</typeparam>
     /// <param name="name">The option name to format, such as <c>LogEventLevel</c> for <c>--log-event-level</c>.</param>

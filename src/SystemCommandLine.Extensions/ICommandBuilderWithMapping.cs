@@ -10,6 +10,13 @@ public interface ICommandBuilderWithMapping<TCommand, TOptionHolder>
     where TCommand : Command, IUseCommandBuilder<TCommand>
     where TOptionHolder : class
 {
+    /// <summary>Creates a positional argument named after and mapped to a property.</summary>
+    /// <typeparam name="TValue">The property and parsed argument value type.</typeparam>
+    /// <param name="propertyExpression">A direct property access. The property must have a public setter when attached.</param>
+    /// <returns>An argument builder; call AddToCommand to append the argument and register its mapping.</returns>
+    /// <exception cref="ArgumentException">The expression is not a property access.</exception>
+    ICommandPositionalArgumentBuilderWithMapping<TCommand, TOptionHolder, TValue> NewArgument<TValue>(Expression<Func<TOptionHolder, TValue>> propertyExpression);
+
     /// <summary>Returns to the command builder for defining options without mapping or selecting another mapping type.</summary>
     /// <returns>The underlying builder for the same command.</returns>
     ICommandBuilder<TCommand> CommandBuilder();

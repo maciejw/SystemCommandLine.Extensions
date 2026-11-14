@@ -8,6 +8,7 @@ using System.CommandLine;
 
 using TestConsoleApp.RootCommand;
 using TestConsoleApp.RootCommand.GreetCommand;
+using TestConsoleApp.RootCommand.WaveCommand;
 
 namespace TestConsoleApp;
 
@@ -25,9 +26,11 @@ internal class Program
         hostBuilder.ConfigureServices((ctx, services) =>
         {
             services.AddRootCommand<Root>(args)
-                .AddSubCommand<Greet>();
+                .AddSubCommand<Greet>()
+                .AddSubCommand<Wave>();
 
             services.AddCommand<Greet>();
+            services.AddCommand<Wave>();
         });
 
         IHost host = hostBuilder.Start();

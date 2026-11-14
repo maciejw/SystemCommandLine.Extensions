@@ -4,6 +4,9 @@ namespace SystemCommandLine.Extensions.Builders;
 
 internal class CommandBuilder<TCommand>(TCommand command) : ICommandBuilder<TCommand> where TCommand : Command, IUseCommandBuilder<TCommand>
 {
+    public ICommandPositionalArgumentBuilder<TCommand, TValue> NewArgument<TValue>(string name)
+        => new CommandPositionalArgumentBuilder<TCommand, TValue>(this, command, name);
+
     public ICommandArgumentBuilder<TCommand, TOption> NewOption<TOption>(string name)
     {
         return new CommandArgumentBuilder<TCommand, TOption>(this, command, name);

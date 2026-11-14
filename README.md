@@ -223,6 +223,37 @@ common patterns in real apps:
 - Avoid repetitive glue when mapping parsed values into `IOptions<T>`
 - Compose commands and handlers via DI in a host-friendly way
 
+### Positional arguments
+
+Positional arguments can be defined alongside options:
+
+```csharp
+command.UseCommandBuilder()
+    .WithMapping<GreetOptions>(mapperRegistration)
+    .NewArgument(x => x.Name)
+        .Configure(a => a.Description = "Person to greet")
+        .AddToCommand()
+    .NewOption(x => x.Shout)
+        .AddToCommand();
+```
+
+For an argument without property mapping, use `NewArgument<string>("name")`.
+Arguments are parsed in the order they are attached. Use `Configure` to set
+arity, defaults, and validation. Mapped arguments use the same
+`BindOptions<T>()` registration as mapped options.
+Existing option builder types and mapper delegates retain their names and signatures.
+Custom implementations of the command builder interfaces must implement the new
+`NewArgument` method; missing implementations are reported at compile time.
+
+The sample app includes `wave <name> [<message>] [--shout]`: `name` is mapped
+to its private options type, while `message` is read directly from the parse
+result and defaults to `Hello`. The `Wave` launch profile runs this example.
+
+```sh
+dotnet run --project src/TestConsoleApp --no-launch-profile -- wave John
+dotnet run --project src/TestConsoleApp --no-launch-profile -- wave "Jane Doe" "Good morning" --shout
+```
+
 ### Requirements
 
 - .NET 8.0+
