@@ -256,16 +256,17 @@ dotnet run --project src/TestConsoleApp --no-launch-profile -- wave "Jane Doe" "
 
 ### Requirements
 
-- .NET 8.0+
-- System.CommandLine 2.0.0
+- .NET 10.0+
+- System.CommandLine 3.0.0
 
-To build this repository, use the .NET 11 SDK or newer and install the .NET 8
-runtime to run the tests and sample application. The library still targets .NET 8.
+To build this repository, use the .NET 11 SDK or newer and install the .NET 10
+runtime to run the tests and sample application. The library targets .NET 10.
+The repository's `global.json` selects Microsoft.Testing.Platform for `dotnet test`.
 
 ```sh
 dotnet restore SystemCommandLine.Extensions.slnx
 dotnet build SystemCommandLine.Extensions.slnx --configuration Release --no-restore
-dotnet test SystemCommandLine.Extensions.slnx --configuration Release --no-build
+dotnet test --solution SystemCommandLine.Extensions.slnx --configuration Release --no-build
 ```
 
 ### License

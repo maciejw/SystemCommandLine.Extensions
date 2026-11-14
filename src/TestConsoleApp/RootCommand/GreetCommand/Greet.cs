@@ -15,17 +15,8 @@ public class Greet : Command, IUseCommandBuilder<Greet>
         this.UseCommandBuilder()
             .NewOption<string>("prefix").Configure(o =>
             {
-                string[] values = ["Sir", "Mr", "Lord"];
                 o.DefaultValueFactory = _ => "Mr";
-                o.Validators.Add(r =>
-                {
-                    string? value = r.GetValue<string>("--prefix");
-                    if (!values.Contains(value))
-                    {
-                        r.AddError($"The value '{value}' is not allowed for --prefix. Valid values are {string.Join(", ", values)}");
-                    }
-                });
-                o.CompletionSources.Add(values);
+                o.AcceptOnlyFromAmong(StringComparer.OrdinalIgnoreCase, "Sir", "Mr", "Lord");
                 o.Description = "An example option without DI mapping";
             }).AddToCommand()
             .WithMapping<GreetOptions>(mapperRegistration)
