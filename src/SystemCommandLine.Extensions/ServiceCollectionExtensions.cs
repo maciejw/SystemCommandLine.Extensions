@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="services"/> or <paramref name="args"/> is null.</exception>
     public static CommandRegistrationBuilder<TRootCommand> AddRootCommand<TRootCommand>(this IServiceCollection services, string[] args)
-    where TRootCommand : RootCommand, IUseCommandBuilder<TRootCommand>
+    where TRootCommand : RootCommand, ICommandDefinition<TRootCommand>
     {
         ArgumentNullException.ThrowIfNull(args);
         var builder = services.AddCommand<TRootCommand>();
@@ -43,10 +43,10 @@ public static class ServiceCollectionExtensions
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="services"/> is null.</exception>
     public static CommandRegistrationBuilder<TCommand> AddCommand<TCommand>(this IServiceCollection services)
-        where TCommand : Command, IUseCommandBuilder<TCommand>
+        where TCommand : Command, ICommandDefinition<TCommand>
     {
         ArgumentNullException.ThrowIfNull(services);
-        services.AddOptions<CommandSymbolMapper<TCommand>>();
+        services.AddOptions<CommandSymbolMappers<TCommand>>();
         var builder = new CommandRegistrationBuilder<TCommand>(services);
         services.AddSingleton(builder.CreateCommand);
         TCommand.ConfigureRegistration(builder);
@@ -60,7 +60,7 @@ public static class ServiceCollectionExtensions
     /// <param name="sp">The service provider from which to resolve the handler at invocation time.</param>
     /// <returns>The supplied command instance.</returns>
     /// <remarks>The handler must already be registered with the provider. The parse result and invocation cancellation token are forwarded to it.</remarks>
-    public static TCommand SetAsyncHandler<TCommand, THandler>(this TCommand command, IServiceProvider sp) where TCommand : Command, IUseCommandBuilder<TCommand> where THandler : AsynchronousCommandLineAction
+    public static TCommand SetAsyncHandler<TCommand, THandler>(this TCommand command, IServiceProvider sp) where TCommand : Command, ICommandDefinition<TCommand> where THandler : AsynchronousCommandLineAction
     {
         command.SetAction((pr, ct) => sp.GetRequiredService<THandler>().InvokeAsync(pr, ct));
         return command;
@@ -72,7 +72,7 @@ public static class ServiceCollectionExtensions
     /// <param name="sp">The service provider from which to resolve the handler at invocation time.</param>
     /// <returns>The supplied command instance.</returns>
     /// <remarks>The handler must already be registered with the provider. The command's parse result is forwarded to it.</remarks>
-    public static TCommand SetHandler<TCommand, THandler>(this TCommand command, IServiceProvider sp) where TCommand : Command, IUseCommandBuilder<TCommand> where THandler : SynchronousCommandLineAction
+    public static TCommand SetHandler<TCommand, THandler>(this TCommand command, IServiceProvider sp) where TCommand : Command, ICommandDefinition<TCommand> where THandler : SynchronousCommandLineAction
     {
         command.SetAction(pr => sp.GetRequiredService<THandler>().Invoke(pr));
         return command;

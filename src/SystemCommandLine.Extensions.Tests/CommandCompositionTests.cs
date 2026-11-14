@@ -20,8 +20,8 @@ public class CommandCompositionTests
         }
 
         services.AddRootCommand<TestRoot>(["group", "leaf", "--value", "42"])
-            .AddSubCommand<GroupCommand>();
-        services.AddCommand<GroupCommand>().AddSubCommand<LeafCommand>();
+            .WithSubcommand<GroupCommand>();
+        services.AddCommand<GroupCommand>().WithSubcommand<LeafCommand>();
 
         if (!childFirst)
         {
@@ -48,8 +48,8 @@ public class CommandCompositionTests
     public async Task Commands_with_handlers_can_be_configured_as_parents(bool asynchronous, int exitCode)
     {
         var services = new ServiceCollection();
-        services.AddRootCommand<TestRoot>(["group"]).AddSubCommand<GroupCommand>();
-        var groupBuilder = services.AddCommand<GroupCommand>().AddSubCommand<DisposableCommand>();
+        services.AddRootCommand<TestRoot>(["group"]).WithSubcommand<GroupCommand>();
+        var groupBuilder = services.AddCommand<GroupCommand>().WithSubcommand<DisposableCommand>();
         if (asynchronous)
         {
             groupBuilder.WithAsyncHandler<AsyncGroupHandler>();
@@ -75,9 +75,9 @@ public class CommandCompositionTests
     {
         var services = new ServiceCollection();
         services.AddRootCommand<TestRoot>([])
-            .AddSubCommand<GroupCommand>()
-            .AddSubCommand<DisposableCommand>()
-            .AddSubCommand<GroupCommand>();
+            .WithSubcommand<GroupCommand>()
+            .WithSubcommand<DisposableCommand>()
+            .WithSubcommand<GroupCommand>();
         services.AddCommand<GroupCommand>();
         services.AddCommand<DisposableCommand>();
 
@@ -95,7 +95,7 @@ public class CommandCompositionTests
     public void Externally_attached_command_is_disposed_once_by_its_registration()
     {
         var services = new ServiceCollection();
-        services.AddRootCommand<TestRoot>([]).AddSubCommand<DisposableCommand>();
+        services.AddRootCommand<TestRoot>([]).WithSubcommand<DisposableCommand>();
         services.AddCommand<DisposableCommand>();
 
         DisposableCommand child;
@@ -114,7 +114,7 @@ public class CommandCompositionTests
     public void Missing_child_registration_fails_when_composing_the_parent()
     {
         var services = new ServiceCollection();
-        services.AddRootCommand<TestRoot>([]).AddSubCommand<DisposableCommand>();
+        services.AddRootCommand<TestRoot>([]).WithSubcommand<DisposableCommand>();
 
         using var provider = services.BuildServiceProvider();
         var exception = Assert.Throws<InvalidOperationException>(() => provider.GetRequiredService<TestRoot>());
@@ -125,7 +125,7 @@ public class CommandCompositionTests
     public void Command_cannot_be_its_own_child()
     {
         var builder = new ServiceCollection().AddCommand<GroupCommand>();
-        Assert.Throws<InvalidOperationException>(() => builder.AddSubCommand<GroupCommand>());
+        Assert.Throws<InvalidOperationException>(() => builder.WithSubcommand<GroupCommand>());
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public class CommandCompositionTests
     {
         var services = new ServiceCollection();
         var rootBuilder = services.AddRootCommand<TestRoot>([]);
-        Assert.Same(rootBuilder, rootBuilder.AddSubCommand<DisposableCommand>().WithHandler<GroupHandler>());
+        Assert.Same(rootBuilder, rootBuilder.WithSubcommand<DisposableCommand>().WithHandler<GroupHandler>());
         Assert.Same(services, rootBuilder.Services);
         rootBuilder.Services.AddCommand<DisposableCommand>();
 
@@ -147,7 +147,7 @@ public class CommandCompositionTests
     public void Factory_attached_child_is_not_attached_again()
     {
         var services = new ServiceCollection();
-        services.AddRootCommand<FactoryRoot>([]).AddSubCommand<DisposableCommand>();
+        services.AddRootCommand<FactoryRoot>([]).WithSubcommand<DisposableCommand>();
         services.AddCommand<DisposableCommand>();
 
         using var provider = services.BuildServiceProvider();
@@ -160,7 +160,7 @@ public class CommandCompositionTests
     public void Repeated_options_binding_maps_values_once()
     {
         var services = new ServiceCollection();
-        services.AddRootCommand<TestRoot>(["leaf", "--value", "42"]).AddSubCommand<LeafCommand>();
+        services.AddRootCommand<TestRoot>(["leaf", "--value", "42"]).WithSubcommand<LeafCommand>();
         var builder = services.AddCommand<LeafCommand>().WithHandler<LeafHandler>();
         Assert.Same(builder, builder.BindOptions<LeafOptions>().BindOptions<LeafOptions>());
 
@@ -195,7 +195,7 @@ public class CommandCompositionTests
     {
         var services = new ServiceCollection();
         services.AddRootCommand<TestRoot>(["self-registered", "--value", "42"])
-            .AddSubCommand<SelfRegisteredCommand>();
+            .WithSubcommand<SelfRegisteredCommand>();
         services.AddCommand<SelfRegisteredCommand>().BindOptions<LeafOptions>();
 
         // The hook runs during registration, but its command and handler remain lazy.
@@ -237,7 +237,7 @@ public class CommandCompositionTests
     {
         var services = new ServiceCollection();
         services.AddRootCommand<TestRoot>(["self-registered", "--value", "42"])
-            .AddSubCommand<SelfRegisteredCommand>();
+            .WithSubcommand<SelfRegisteredCommand>();
         var builder = services.AddCommand<SelfRegisteredCommand>();
         if (asynchronous)
         {
@@ -260,18 +260,18 @@ public class CommandCompositionTests
         services.AddCommand<LeafCommand>().WithHandler<LeafHandler>().BindOptions<LeafOptions>();
     }
 
-    private sealed class TestRoot() : RootCommand("factory"), IUseCommandBuilder<TestRoot>
+    private sealed class TestRoot() : RootCommand("factory"), ICommandDefinition<TestRoot>
     {
-        public static TestRoot CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) => new();
+        public static TestRoot CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration) => new();
     }
 
-    private sealed class FactoryRoot : RootCommand, IUseCommandBuilder<FactoryRoot>
+    private sealed class FactoryRoot : RootCommand, ICommandDefinition<FactoryRoot>
     {
-        public static FactoryRoot CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) =>
+        public static FactoryRoot CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration) =>
             new() { serviceProvider.GetRequiredService<DisposableCommand>() };
     }
 
-    private sealed class GroupCommand : Command, IUseCommandBuilder<GroupCommand>
+    private sealed class GroupCommand : Command, ICommandDefinition<GroupCommand>
     {
         private GroupCommand() : base("group")
         {
@@ -280,18 +280,18 @@ public class CommandCompositionTests
             Add(child);
         }
 
-        public static GroupCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) => new();
+        public static GroupCommand CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration) => new();
     }
 
-    private sealed class LeafCommand : Command, IUseCommandBuilder<LeafCommand>
+    private sealed class LeafCommand : Command, ICommandDefinition<LeafCommand>
     {
-        private LeafCommand(ArgumentMapperRegistration mapperRegistration) : base("leaf")
+        private LeafCommand(SymbolMapperRegistration mapperRegistration) : base("leaf")
         {
             this.UseCommandBuilder().WithMapping<LeafOptions>(mapperRegistration)
                 .NewOption(options => options.Value).AddToCommand();
         }
 
-        public static LeafCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) => new(mapperRegistration);
+        public static LeafCommand CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration) => new(mapperRegistration);
     }
 
     private sealed class LeafOptions
@@ -330,9 +330,9 @@ public class CommandCompositionTests
         public int HandlerCreations { get; set; }
     }
 
-    private sealed class SelfRegisteredCommand : Command, IUseCommandBuilder<SelfRegisteredCommand>
+    private sealed class SelfRegisteredCommand : Command, ICommandDefinition<SelfRegisteredCommand>
     {
-        private SelfRegisteredCommand(ArgumentMapperRegistration mapperRegistration) : base("self-registered")
+        private SelfRegisteredCommand(SymbolMapperRegistration mapperRegistration) : base("self-registered")
         {
             this.UseCommandBuilder().WithMapping<LeafOptions>(mapperRegistration)
                 .NewOption(options => options.Value).AddToCommand();
@@ -344,7 +344,7 @@ public class CommandCompositionTests
                 .Services.AddSingleton(new RegistrationProbe());
         }
 
-        public static SelfRegisteredCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration)
+        public static SelfRegisteredCommand CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration)
         {
             serviceProvider.GetRequiredService<RegistrationProbe>().CommandCreations++;
             return new(mapperRegistration);
@@ -364,9 +364,9 @@ public class CommandCompositionTests
         public override int Invoke(ParseResult parseResult) => options.Value.Value;
     }
 
-    private sealed class SelfRegisteredRoot : RootCommand, IUseCommandBuilder<SelfRegisteredRoot>
+    private sealed class SelfRegisteredRoot : RootCommand, ICommandDefinition<SelfRegisteredRoot>
     {
-        private SelfRegisteredRoot(ArgumentMapperRegistration mapperRegistration)
+        private SelfRegisteredRoot(SymbolMapperRegistration mapperRegistration)
         {
             this.UseCommandBuilder().WithMapping<LeafOptions>(mapperRegistration)
                 .NewOption(options => options.Value).AddToCommand();
@@ -375,17 +375,17 @@ public class CommandCompositionTests
         public static void ConfigureRegistration(CommandRegistrationBuilder<SelfRegisteredRoot> builder) =>
             builder.WithHandler<LeafHandler>().BindOptions<LeafOptions>();
 
-        public static SelfRegisteredRoot CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) =>
+        public static SelfRegisteredRoot CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration) =>
             new(mapperRegistration);
     }
 
-    private sealed class DisposableCommand : Command, IUseCommandBuilder<DisposableCommand>, IDisposable
+    private sealed class DisposableCommand : Command, ICommandDefinition<DisposableCommand>, IDisposable
     {
         private DisposableCommand() : base("disposable") => SetAction(_ => 31);
 
         public int DisposeCount { get; private set; }
 
-        public static DisposableCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) => new();
+        public static DisposableCommand CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration) => new();
 
         public void Dispose() => DisposeCount++;
     }

@@ -8,9 +8,9 @@ namespace SystemCommandLine.Extensions.Tests;
 
 public class CommandBuilderTests
 {
-    private class TestRootCommand : RootCommand, IUseCommandBuilder<TestRootCommand>
+    private class TestRootCommand : RootCommand, ICommandDefinition<TestRootCommand>
     {
-        public static TestRootCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration)
+        public static TestRootCommand CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration)
         {
             return new TestRootCommand() {
                 serviceProvider.GetRequiredService<TestCommand>()
@@ -18,9 +18,9 @@ public class CommandBuilderTests
         }
     }
 
-    private class TestCommand : Command, IUseCommandBuilder<TestCommand>
+    private class TestCommand : Command, ICommandDefinition<TestCommand>
     {
-        public TestCommand(ArgumentMapperRegistration mapperRegistration) : base("test", "A test command")
+        public TestCommand(SymbolMapperRegistration mapperRegistration) : base("test", "A test command")
         {
             this.UseCommandBuilder().WithMapping<TestCommandOptions>(mapperRegistration)
                 .NewOption(x => x.Name).Configure(o =>
@@ -43,7 +43,7 @@ public class CommandBuilderTests
                     o.DefaultValueFactory = _ => "!";
                 }).AddToCommand();
         }
-        public static TestCommand CommandFactory(IServiceProvider serviceProvider, ArgumentMapperRegistration mapperRegistration) => new(mapperRegistration);
+        public static TestCommand CreateCommand(IServiceProvider serviceProvider, SymbolMapperRegistration mapperRegistration) => new(mapperRegistration);
 
         public class TestCommandOptions
         {

@@ -3,15 +3,15 @@ using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal class CommandBuilderWithMapping<TCommand, TOptionHolder>(ICommandBuilder<TCommand> commandBuilder, TCommand command, ArgumentMapperRegistration mapperRegistration) : ICommandBuilderWithMapping<TCommand, TOptionHolder> where TCommand : Command, IUseCommandBuilder<TCommand>
-    where TOptionHolder : class
+internal class CommandBuilderWithMapping<TCommand, TOptions>(ICommandBuilder<TCommand> commandBuilder, TCommand command, SymbolMapperRegistration mapperRegistration) : ICommandBuilderWithMapping<TCommand, TOptions> where TCommand : Command, ICommandDefinition<TCommand>
+    where TOptions : class
 {
-    public ICommandPositionalArgumentBuilderWithMapping<TCommand, TOptionHolder, TValue> NewArgument<TValue>(Expression<Func<TOptionHolder, TValue>> propertyExpression)
-        => new CommandPositionalArgumentBuilderWithMapping<TCommand, TOptionHolder, TValue>(this, command, propertyExpression, mapperRegistration);
+    public ICommandPositionalArgumentBuilderWithMapping<TCommand, TOptions, TValue> NewArgument<TValue>(Expression<Func<TOptions, TValue>> propertyExpression)
+        => new CommandPositionalArgumentBuilderWithMapping<TCommand, TOptions, TValue>(this, command, propertyExpression, mapperRegistration);
 
-    public ICommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption> NewOption<TOption>(Expression<Func<TOptionHolder, TOption>> propertyExpression)
+    public ICommandOptionBuilderWithMapping<TCommand, TOptions, TValue> NewOption<TValue>(Expression<Func<TOptions, TValue>> propertyExpression)
     {
-        return new CommandOptionBuilderWithMapping<TCommand, TOptionHolder, TOption>(command, this, propertyExpression, mapperRegistration);
+        return new CommandOptionBuilderWithMapping<TCommand, TOptions, TValue>(command, this, propertyExpression, mapperRegistration);
     }
     public ICommandBuilder<TCommand> CommandBuilder() => commandBuilder;
 }

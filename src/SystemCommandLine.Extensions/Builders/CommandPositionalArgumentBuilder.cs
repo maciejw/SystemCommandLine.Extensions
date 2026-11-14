@@ -5,7 +5,7 @@ namespace SystemCommandLine.Extensions.Builders;
 internal sealed class CommandPositionalArgumentBuilder<TCommand, TValue>(
     ICommandBuilder<TCommand> builder, TCommand command, string name)
     : ICommandPositionalArgumentBuilder<TCommand, TValue>
-    where TCommand : Command, IUseCommandBuilder<TCommand>
+    where TCommand : Command, ICommandDefinition<TCommand>
 {
     private readonly Argument<TValue> argument = new(NameFormatExtensions.ToKebabCase("", name));
 

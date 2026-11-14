@@ -13,12 +13,12 @@ public class PositionalArgumentTests
         public string[] Files { get; set; } = [];
     }
 
-    private sealed class Root : RootCommand, IUseCommandBuilder<Root>
+    private sealed class Root : RootCommand, ICommandDefinition<Root>
     {
         public static void ConfigureRegistration(CommandRegistrationBuilder<Root> builder)
             => builder.BindOptions<Inputs>();
 
-        public static Root CommandFactory(IServiceProvider services, ArgumentMapperRegistration register)
+        public static Root CreateCommand(IServiceProvider services, SymbolMapperRegistration register)
         {
             var command = new Root();
             command.UseCommandBuilder().WithMapping<Inputs>(register)
@@ -75,7 +75,7 @@ public class PositionalArgumentTests
     public void Maps_configured_argument_default()
     {
         var command = new Root();
-        var mappers = new List<ArgumentMapper>();
+        var mappers = new List<SymbolMapper>();
         command.UseCommandBuilder().WithMapping<Inputs>(mappers.Add)
             .NewArgument(x => x.Name).Configure(a => a.DefaultValueFactory = _ => "World").AddToCommand();
         var result = command.Parse([]);

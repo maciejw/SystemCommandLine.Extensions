@@ -3,27 +3,27 @@ using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal sealed class CommandPositionalArgumentBuilderWithMapping<TCommand, TOptionHolder, TValue>(
-    ICommandBuilderWithMapping<TCommand, TOptionHolder> builder, TCommand command, Expression<Func<TOptionHolder, TValue>> propertyExpression, ArgumentMapperRegistration mapperRegistration)
-    : ICommandPositionalArgumentBuilderWithMapping<TCommand, TOptionHolder, TValue>
-    where TCommand : Command, IUseCommandBuilder<TCommand>
-    where TOptionHolder : class
+internal sealed class CommandPositionalArgumentBuilderWithMapping<TCommand, TOptions, TValue>(
+    ICommandBuilderWithMapping<TCommand, TOptions> builder, TCommand command, Expression<Func<TOptions, TValue>> propertyExpression, SymbolMapperRegistration mapperRegistration)
+    : ICommandPositionalArgumentBuilderWithMapping<TCommand, TOptions, TValue>
+    where TCommand : Command, ICommandDefinition<TCommand>
+    where TOptions : class
 {
     private readonly Argument<TValue> argument = new(NameFormatExtensions.ToKebabCase("", propertyExpression.GetPropertyName()));
 
-    public ICommandPositionalArgumentBuilderWithMapping<TCommand, TOptionHolder, TValue> Configure(Action<Argument<TValue>> configure)
+    public ICommandPositionalArgumentBuilderWithMapping<TCommand, TOptions, TValue> Configure(Action<Argument<TValue>> configure)
     {
         configure(argument);
         return this;
     }
 
-    public ICommandBuilderWithMapping<TCommand, TOptionHolder> AddToCommand()
+    public ICommandBuilderWithMapping<TCommand, TOptions> AddToCommand()
     {
-        var assign = propertyExpression.CreateArgumentValueMapper();
+        var assign = propertyExpression.CreatePropertyValueMapper();
         command.Add(argument);
         mapperRegistration((parseResult, options) =>
         {
-            if (options is TOptionHolder holder)
+            if (options is TOptions holder)
                 assign(holder, parseResult.GetValue(argument));
         });
         return builder;

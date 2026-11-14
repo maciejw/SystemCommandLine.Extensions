@@ -2,13 +2,13 @@ using System.CommandLine;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal class CommandOptionBuilder<TCommand, TOption>(ICommandBuilder<TCommand> commandBuilder, TCommand command, string name) : ICommandArgumentBuilder<TCommand, TOption> where TCommand : Command, IUseCommandBuilder<TCommand>
+internal class CommandOptionBuilder<TCommand, TValue>(ICommandBuilder<TCommand> commandBuilder, TCommand command, string name) : ICommandOptionBuilder<TCommand, TValue> where TCommand : Command, ICommandDefinition<TCommand>
 {
-    protected readonly Option<TOption> option = new(NameFormatExtensions.ToKebabCase("--", name));
+    protected readonly Option<TValue> option = new(NameFormatExtensions.ToKebabCase("--", name));
 
-    public virtual ICommandArgumentBuilder<TCommand, TOption> Configure(Action<Option<TOption>> value)
+    public virtual ICommandOptionBuilder<TCommand, TValue> Configure(Action<Option<TValue>> configure)
     {
-        value.Invoke(option);
+        configure.Invoke(option);
         return this;
     }
 

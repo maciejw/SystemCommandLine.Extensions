@@ -6,7 +6,7 @@ namespace SystemCommandLine.Extensions;
 /// <typeparam name="TCommand">The command that owns the argument.</typeparam>
 /// <typeparam name="TValue">The parsed argument value type.</typeparam>
 public interface ICommandPositionalArgumentBuilder<TCommand, TValue>
-    where TCommand : Command, IUseCommandBuilder<TCommand>
+    where TCommand : Command, ICommandDefinition<TCommand>
 {
     /// <summary>Configures the argument's name, description, arity, defaults, or validation.</summary>
     /// <param name="configure">The callback applied to the argument definition.</param>

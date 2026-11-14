@@ -2,19 +2,19 @@ using System.CommandLine;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal class CommandBuilder<TCommand>(TCommand command) : ICommandBuilder<TCommand> where TCommand : Command, IUseCommandBuilder<TCommand>
+internal class CommandBuilder<TCommand>(TCommand command) : ICommandBuilder<TCommand> where TCommand : Command, ICommandDefinition<TCommand>
 {
     public ICommandPositionalArgumentBuilder<TCommand, TValue> NewArgument<TValue>(string name)
         => new CommandPositionalArgumentBuilder<TCommand, TValue>(this, command, name);
 
-    public ICommandArgumentBuilder<TCommand, TOption> NewOption<TOption>(string name)
+    public ICommandOptionBuilder<TCommand, TValue> NewOption<TValue>(string name)
     {
-        return new CommandOptionBuilder<TCommand, TOption>(this, command, name);
+        return new CommandOptionBuilder<TCommand, TValue>(this, command, name);
     }
 
-    public ICommandBuilderWithMapping<TCommand, TOptionHolder> WithMapping<TOptionHolder>(ArgumentMapperRegistration mapperRegistration)
-        where TOptionHolder : class
+    public ICommandBuilderWithMapping<TCommand, TOptions> WithMapping<TOptions>(SymbolMapperRegistration mapperRegistration)
+        where TOptions : class
     {
-        return new CommandBuilderWithMapping<TCommand, TOptionHolder>(this, command, mapperRegistration);
+        return new CommandBuilderWithMapping<TCommand, TOptions>(this, command, mapperRegistration);
     }
 }

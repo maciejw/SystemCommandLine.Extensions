@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.ComponentModel;
 
 namespace SystemCommandLine.Extensions;
 
@@ -14,7 +15,7 @@ namespace SystemCommandLine.Extensions;
 /// building the service provider. Command definitions remain owned by their factories.
 /// </remarks>
 public sealed class CommandRegistrationBuilder<TCommand>
-    where TCommand : Command, IUseCommandBuilder<TCommand>
+    where TCommand : Command, ICommandDefinition<TCommand>
 {
     private readonly List<Type> subcommands = [];
     private readonly HashSet<Type> boundOptions = [];
@@ -71,7 +72,7 @@ public sealed class CommandRegistrationBuilder<TCommand>
         if (boundOptions.Add(typeof(TOptions)))
         {
             Services.AddOptions<TOptions>()
-                .Configure<TCommand, IOptions<CommandSymbolMapper<TCommand>>, ParseResult>((options, command, mappers, parseResult) =>
+                .Configure<TCommand, IOptions<CommandSymbolMappers<TCommand>>, ParseResult>((options, command, mappers, parseResult) =>
                 {
                     foreach (var mapper in mappers.Value)
                     {
@@ -93,8 +94,8 @@ public sealed class CommandRegistrationBuilder<TCommand>
     /// first resolved. Relationships must be acyclic; only direct self-parenting is rejected during registration.
     /// </remarks>
     /// <exception cref="InvalidOperationException"><typeparamref name="TChild"/> is the same type as <typeparamref name="TCommand"/>.</exception>
-    public CommandRegistrationBuilder<TCommand> AddSubCommand<TChild>()
-        where TChild : Command, IUseCommandBuilder<TChild>
+    public CommandRegistrationBuilder<TCommand> WithSubcommand<TChild>()
+        where TChild : Command, ICommandDefinition<TChild>
     {
         if (typeof(TChild) == typeof(TCommand))
         {
@@ -109,10 +110,19 @@ public sealed class CommandRegistrationBuilder<TCommand>
         return this;
     }
 
+    /// <summary>Use WithSubcommand to attach a separately registered child command.</summary>
+    /// <typeparam name="TChild">The separately registered child command type.</typeparam>
+    /// <returns>This parent's registration builder.</returns>
+    [Obsolete("Renamed to WithSubcommand. Use WithSubcommand<TChild>(); the child must be registered separately with AddCommand<TChild>().", error: true)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public CommandRegistrationBuilder<TCommand> AddSubCommand<TChild>()
+        where TChild : Command, ICommandDefinition<TChild>
+        => WithSubcommand<TChild>();
+
     internal TCommand CreateCommand(IServiceProvider serviceProvider)
     {
-        var mappers = serviceProvider.GetRequiredService<IOptions<CommandSymbolMapper<TCommand>>>().Value;
-        var command = TCommand.CommandFactory(serviceProvider, mappers.Add);
+        var mappers = serviceProvider.GetRequiredService<IOptions<CommandSymbolMappers<TCommand>>>().Value;
+        var command = TCommand.CreateCommand(serviceProvider, mappers.Add);
         setHandler?.Invoke(command, serviceProvider);
 
         foreach (var childType in subcommands)

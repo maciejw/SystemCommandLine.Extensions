@@ -3,39 +3,39 @@ using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal class CommandOptionBuilderWithMapping<TCommand, TOptionHolder, TOption>(TCommand command, ICommandBuilderWithMapping<TCommand, TOptionHolder> commandHandlerBuilder, Expression<Func<TOptionHolder, TOption>> propertyExpression, ArgumentMapperRegistration mapperRegistration) : ICommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption> where TCommand : Command, IUseCommandBuilder<TCommand>
-    where TOptionHolder : class
+internal class CommandOptionBuilderWithMapping<TCommand, TOptions, TValue>(TCommand command, ICommandBuilderWithMapping<TCommand, TOptions> commandBuilder, Expression<Func<TOptions, TValue>> propertyExpression, SymbolMapperRegistration mapperRegistration) : ICommandOptionBuilderWithMapping<TCommand, TOptions, TValue> where TCommand : Command, ICommandDefinition<TCommand>
+    where TOptions : class
 {
-    private readonly Option<TOption> option = new(ToKebabCase(propertyExpression.GetPropertyName()));
+    private readonly Option<TValue> option = new(ToKebabCase(propertyExpression.GetPropertyName()));
 
     private static string ToKebabCase(string optionName)
     {
         return NameFormatExtensions.ToKebabCase("--", optionName);
     }
-    public ICommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption> Configure(Action<Option<TOption>> value)
+    public ICommandOptionBuilderWithMapping<TCommand, TOptions, TValue> Configure(Action<Option<TValue>> configure)
     {
-        value.Invoke(option);
+        configure.Invoke(option);
         return this;
     }
 
-    public ICommandBuilderWithMapping<TCommand, TOptionHolder> AddToCommand()
+    public ICommandBuilderWithMapping<TCommand, TOptions> AddToCommand()
     {
         command.Add(option);
 
-        RegisterArgumentMapper();
+        RegisterSymbolMapper();
 
-        return commandHandlerBuilder;
+        return commandBuilder;
     }
 
-    private void RegisterArgumentMapper()
+    private void RegisterSymbolMapper()
     {
-        Action<TOptionHolder, TOption?> argumentValueMapper = propertyExpression.CreateArgumentValueMapper();
+        Action<TOptions, TValue?> propertyValueMapper = propertyExpression.CreatePropertyValueMapper();
 
-        void argumentMapper(ParseResult parsedResult, object options)
+        void symbolMapper(ParseResult parsedResult, object options)
         {
-            argumentValueMapper((TOptionHolder)options, parsedResult.GetValue<TOption>(option.Name));
+            propertyValueMapper((TOptions)options, parsedResult.GetValue<TValue>(option.Name));
         }
 
-        mapperRegistration(argumentMapper);
+        mapperRegistration(symbolMapper);
     }
 }
