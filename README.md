@@ -228,6 +228,15 @@ common patterns in real apps:
 - .NET 8.0+
 - System.CommandLine 2.0.0
 
+To build this repository, use the .NET 11 SDK or newer and install the .NET 8
+runtime to run the tests and sample application. The library still targets .NET 8.
+
+```sh
+dotnet restore SystemCommandLine.Extensions.slnx
+dotnet build SystemCommandLine.Extensions.slnx --configuration Release --no-restore
+dotnet test SystemCommandLine.Extensions.slnx --configuration Release --no-build
+```
+
 ### License
 
 MIT. See `LICENSE.txt`.

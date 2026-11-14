@@ -17,24 +17,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0   # improve Source Link and versioning fidelity
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.0.x
+            11.0.x
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore SystemCommandLine.Extensions.slnx
 
       - name: Build (Release)
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build SystemCommandLine.Extensions.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test SystemCommandLine.Extensions.slnx --configuration Release --no-build --verbosity normal
 
       - name: Pack (artifact only)
         if: startsWith(github.ref, 'refs/tags/v') == false
@@ -45,7 +46,7 @@ jobs:
 
       - name: Upload package artifacts (non-release)
         if: startsWith(github.ref, 'refs/tags/v') == false
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: packages
           path: |
@@ -61,14 +62,16 @@ jobs:
       name: nuget
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0   # improve Source Link and versioning fidelity
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: |
+            8.0.x
+            11.0.x
 
       # Derive version from tag: v1.2.3 -> 1.2.3
       - name: Derive version
@@ -77,10 +80,10 @@ jobs:
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore SystemCommandLine.Extensions.slnx
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore /p:ContinuousIntegrationBuild=true
+        run: dotnet build SystemCommandLine.Extensions.slnx --configuration Release --no-restore /p:ContinuousIntegrationBuild=true /p:Version=${{ steps.ver.outputs.VERSION }}
 
       - name: Pack (tagged version)
         run: >
