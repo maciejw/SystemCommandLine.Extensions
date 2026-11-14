@@ -10,5 +10,3 @@ public delegate void ArgumentMapper(ParseResult parseResult, object options);
 /// <summary>Registers a mapper to run when the command's bound options are configured.</summary>
 /// <param name="mapper">The mapping operation to register.</param>
 public delegate void ArgumentMapperRegistration(ArgumentMapper mapper);
-
-internal class CommandArgumentMapper<TCommand> : List<ArgumentMapper> { }

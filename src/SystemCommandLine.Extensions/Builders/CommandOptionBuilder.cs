@@ -2,7 +2,7 @@ using System.CommandLine;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal class CommandArgumentBuilder<TCommand, TOption>(ICommandBuilder<TCommand> commandBuilder, TCommand command, string name) : ICommandArgumentBuilder<TCommand, TOption> where TCommand : Command, IUseCommandBuilder<TCommand>
+internal class CommandOptionBuilder<TCommand, TOption>(ICommandBuilder<TCommand> commandBuilder, TCommand command, string name) : ICommandArgumentBuilder<TCommand, TOption> where TCommand : Command, IUseCommandBuilder<TCommand>
 {
     protected readonly Option<TOption> option = new(NameFormatExtensions.ToKebabCase("--", name));
 

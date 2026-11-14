@@ -46,7 +46,7 @@ public static class ServiceCollectionExtensions
         where TCommand : Command, IUseCommandBuilder<TCommand>
     {
         ArgumentNullException.ThrowIfNull(services);
-        services.AddOptions<CommandArgumentMapper<TCommand>>();
+        services.AddOptions<CommandSymbolMapper<TCommand>>();
         var builder = new CommandRegistrationBuilder<TCommand>(services);
         services.AddSingleton(builder.CreateCommand);
         TCommand.ConfigureRegistration(builder);

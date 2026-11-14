@@ -11,7 +11,7 @@ internal class CommandBuilderWithMapping<TCommand, TOptionHolder>(ICommandBuilde
 
     public ICommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption> NewOption<TOption>(Expression<Func<TOptionHolder, TOption>> propertyExpression)
     {
-        return new CommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption>(command, this, propertyExpression, mapperRegistration);
+        return new CommandOptionBuilderWithMapping<TCommand, TOptionHolder, TOption>(command, this, propertyExpression, mapperRegistration);
     }
     public ICommandBuilder<TCommand> CommandBuilder() => commandBuilder;
 }

@@ -9,7 +9,7 @@ internal class CommandBuilder<TCommand>(TCommand command) : ICommandBuilder<TCom
 
     public ICommandArgumentBuilder<TCommand, TOption> NewOption<TOption>(string name)
     {
-        return new CommandArgumentBuilder<TCommand, TOption>(this, command, name);
+        return new CommandOptionBuilder<TCommand, TOption>(this, command, name);
     }
 
     public ICommandBuilderWithMapping<TCommand, TOptionHolder> WithMapping<TOptionHolder>(ArgumentMapperRegistration mapperRegistration)

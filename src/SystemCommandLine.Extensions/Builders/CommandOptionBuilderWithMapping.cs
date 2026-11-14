@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal class CommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption>(TCommand command, ICommandBuilderWithMapping<TCommand, TOptionHolder> commandHandlerBuilder, Expression<Func<TOptionHolder, TOption>> propertyExpression, ArgumentMapperRegistration mapperRegistration) : ICommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption> where TCommand : Command, IUseCommandBuilder<TCommand>
+internal class CommandOptionBuilderWithMapping<TCommand, TOptionHolder, TOption>(TCommand command, ICommandBuilderWithMapping<TCommand, TOptionHolder> commandHandlerBuilder, Expression<Func<TOptionHolder, TOption>> propertyExpression, ArgumentMapperRegistration mapperRegistration) : ICommandArgumentBuilderWithMapping<TCommand, TOptionHolder, TOption> where TCommand : Command, IUseCommandBuilder<TCommand>
     where TOptionHolder : class
 {
     private readonly Option<TOption> option = new(ToKebabCase(propertyExpression.GetPropertyName()));

@@ -71,7 +71,7 @@ public sealed class CommandRegistrationBuilder<TCommand>
         if (boundOptions.Add(typeof(TOptions)))
         {
             Services.AddOptions<TOptions>()
-                .Configure<TCommand, IOptions<CommandArgumentMapper<TCommand>>, ParseResult>((options, command, mappers, parseResult) =>
+                .Configure<TCommand, IOptions<CommandSymbolMapper<TCommand>>, ParseResult>((options, command, mappers, parseResult) =>
                 {
                     foreach (var mapper in mappers.Value)
                     {
@@ -111,7 +111,7 @@ public sealed class CommandRegistrationBuilder<TCommand>
 
     internal TCommand CreateCommand(IServiceProvider serviceProvider)
     {
-        var mappers = serviceProvider.GetRequiredService<IOptions<CommandArgumentMapper<TCommand>>>().Value;
+        var mappers = serviceProvider.GetRequiredService<IOptions<CommandSymbolMapper<TCommand>>>().Value;
         var command = TCommand.CommandFactory(serviceProvider, mappers.Add);
         setHandler?.Invoke(command, serviceProvider);
 
