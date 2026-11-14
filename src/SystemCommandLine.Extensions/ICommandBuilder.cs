@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SystemCommandLine.Extensions;
 
@@ -23,5 +24,5 @@ public interface ICommandBuilder<TCommand> where TCommand : Command, ICommandDef
     /// <param name="mapperRegistration">The mapper-registration delegate supplied to the command factory.</param>
     /// <returns>A builder for defining mapped options and positional arguments on the same command.</returns>
     /// <remarks>Register the options binding with <c>BindOptions&lt;TOptions&gt;()</c> on the command's registration builder.</remarks>
-    ICommandBuilderWithMapping<TCommand, TOptions> WithMapping<TOptions>(SymbolMapperRegistration mapperRegistration) where TOptions : class;
+    ICommandBuilderWithMapping<TCommand, TOptions> WithMapping<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TOptions>(SymbolMapperRegistration mapperRegistration) where TOptions : class;
 }

@@ -1,9 +1,10 @@
 using System.CommandLine;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal class CommandBuilderWithMapping<TCommand, TOptions>(ICommandBuilder<TCommand> commandBuilder, TCommand command, SymbolMapperRegistration mapperRegistration) : ICommandBuilderWithMapping<TCommand, TOptions> where TCommand : Command, ICommandDefinition<TCommand>
+internal class CommandBuilderWithMapping<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TOptions>(ICommandBuilder<TCommand> commandBuilder, TCommand command, SymbolMapperRegistration mapperRegistration) : ICommandBuilderWithMapping<TCommand, TOptions> where TCommand : Command, ICommandDefinition<TCommand>
     where TOptions : class
 {
     public ICommandPositionalArgumentBuilderWithMapping<TCommand, TOptions, TValue> NewArgument<TValue>(Expression<Func<TOptions, TValue>> propertyExpression)

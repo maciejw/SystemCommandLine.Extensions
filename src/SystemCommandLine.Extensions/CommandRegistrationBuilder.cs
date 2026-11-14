@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SystemCommandLine.Extensions;
 
@@ -35,7 +36,7 @@ public sealed class CommandRegistrationBuilder<TCommand>
     /// The last WithHandler or WithAsyncHandler call selects the handler, allowing application registration
     /// to override the command's defaults. Handler selection replaces any factory-defined action when the command is created.
     /// </remarks>
-    public CommandRegistrationBuilder<TCommand> WithHandler<THandler>()
+    public CommandRegistrationBuilder<TCommand> WithHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler>()
         where THandler : SynchronousCommandLineAction
     {
         Services.TryAddSingleton<THandler>();
@@ -51,7 +52,7 @@ public sealed class CommandRegistrationBuilder<TCommand>
     /// The last WithHandler or WithAsyncHandler call selects the handler, allowing application registration
     /// to override the command's defaults. Handler selection replaces any factory-defined action when the command is created.
     /// </remarks>
-    public CommandRegistrationBuilder<TCommand> WithAsyncHandler<THandler>()
+    public CommandRegistrationBuilder<TCommand> WithAsyncHandler<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler>()
         where THandler : AsynchronousCommandLineAction
     {
         Services.TryAddSingleton<THandler>();

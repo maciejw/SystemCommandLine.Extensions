@@ -269,6 +269,25 @@ dotnet build SystemCommandLine.Extensions.slnx --configuration Release --no-rest
 dotnet test --solution SystemCommandLine.Extensions.slnx --configuration Release --no-build
 ```
 
+### Native AOT compatibility
+
+The library enables `IsAotCompatible`.
+Mapped option types preserve public properties, and DI handler types preserve
+public constructors. Generic wrappers around `WithMapping<TOptions>`,
+`WithHandler<THandler>`, or `WithAsyncHandler<THandler>`, and implementations of
+`ICommandBuilder<TCommand>`, must propagate the corresponding
+`DynamicallyAccessedMembers` annotations.
+
+`TestConsoleApp` supports opt-in Native AOT publishing.
+
+Windows publishing requires the Visual Studio Desktop development with C++
+workload and Windows SDK;
+see the [Native AOT prerequisites](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/).
+
+```sh
+dotnet publish src/TestConsoleApp/TestConsoleApp.csproj -c Release -r win-x64 -p:PublishAot=true
+```
+
 ### License
 
 MIT. See `LICENSE.txt`.

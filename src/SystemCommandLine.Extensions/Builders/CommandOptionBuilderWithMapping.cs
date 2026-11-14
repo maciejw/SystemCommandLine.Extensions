@@ -1,9 +1,10 @@
 using System.CommandLine;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace SystemCommandLine.Extensions.Builders;
 
-internal class CommandOptionBuilderWithMapping<TCommand, TOptions, TValue>(TCommand command, ICommandBuilderWithMapping<TCommand, TOptions> commandBuilder, Expression<Func<TOptions, TValue>> propertyExpression, SymbolMapperRegistration mapperRegistration) : ICommandOptionBuilderWithMapping<TCommand, TOptions, TValue> where TCommand : Command, ICommandDefinition<TCommand>
+internal class CommandOptionBuilderWithMapping<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TOptions, TValue>(TCommand command, ICommandBuilderWithMapping<TCommand, TOptions> commandBuilder, Expression<Func<TOptions, TValue>> propertyExpression, SymbolMapperRegistration mapperRegistration) : ICommandOptionBuilderWithMapping<TCommand, TOptions, TValue> where TCommand : Command, ICommandDefinition<TCommand>
     where TOptions : class
 {
     private readonly Option<TValue> option = new(ToKebabCase(propertyExpression.GetPropertyName()));

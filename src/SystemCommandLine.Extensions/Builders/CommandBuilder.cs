@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SystemCommandLine.Extensions.Builders;
 
@@ -12,7 +13,7 @@ internal class CommandBuilder<TCommand>(TCommand command) : ICommandBuilder<TCom
         return new CommandOptionBuilder<TCommand, TValue>(this, command, name);
     }
 
-    public ICommandBuilderWithMapping<TCommand, TOptions> WithMapping<TOptions>(SymbolMapperRegistration mapperRegistration)
+    public ICommandBuilderWithMapping<TCommand, TOptions> WithMapping<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TOptions>(SymbolMapperRegistration mapperRegistration)
         where TOptions : class
     {
         return new CommandBuilderWithMapping<TCommand, TOptions>(this, command, mapperRegistration);

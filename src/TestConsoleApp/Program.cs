@@ -19,8 +19,9 @@ internal class Program
         IHostBuilder hostBuilder = Host.CreateDefaultBuilder();
 
         hostBuilder.UseConsoleLifetime();
-        hostBuilder.UseSerilog((ctx, sp, lc) => lc
-            .ReadFrom.Configuration(ctx.Configuration)
+        hostBuilder.UseSerilog((_, sp, lc) => lc
+            .WriteTo.Console()
+            .Enrich.FromLogContext()
             .MinimumLevel.Is(sp.GetRequiredService<IOptions<LoggerOptions>>().Value.LogEventLevel));
 
         hostBuilder.ConfigureServices((ctx, services) =>
