@@ -44,19 +44,24 @@ public class Greet : Command, IUseCommandBuilder<Greet>
             }).AddToCommand();
     }
 
+    public static void ConfigureRegistration(CommandRegistrationBuilder<Greet> builder)
+    {
+        builder.WithAsyncHandler<GreetHandler>().BindOptions<GreetOptions>();
+    }
+
     public static Greet CommandFactory(IServiceProvider sp, ArgumentMapperRegistration mapperRegistration)
     {
         return new Greet(mapperRegistration);
     }
 
-    public class GreetOptions
+    private class GreetOptions
     {
         public required string Name { get; set; }
         public int Times { get; set; } = 5;
         public bool Shout { get; set; }
     }
 
-    public class GreetHandler(IOptions<GreetOptions> options, ILogger<GreetHandler> logger) : AsynchronousCommandLineAction
+    private class GreetHandler(IOptions<GreetOptions> options, ILogger<GreetHandler> logger) : AsynchronousCommandLineAction
     {
         public async override Task<int> InvokeAsync(ParseResult parseResult, CancellationToken cancellationToken = default)
         {

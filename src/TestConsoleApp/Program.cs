@@ -24,11 +24,10 @@ internal class Program
 
         hostBuilder.ConfigureServices((ctx, services) =>
         {
-            services.AddRootCommand<Root>(args);
-            services.AddBoundToCommandOptions<Root, LoggerOptions>();
+            services.AddRootCommand<Root>(args)
+                .AddSubCommand<Greet>();
 
-            services.AddCommandWithAsyncHandler<Greet, Greet.GreetHandler>();
-            services.AddBoundToCommandOptions<Greet, Greet.GreetOptions>();
+            services.AddCommand<Greet>();
         });
 
         IHost host = hostBuilder.Start();

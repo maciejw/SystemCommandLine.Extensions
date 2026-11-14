@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 
 using SystemCommandLine.Extensions;
@@ -11,60 +9,27 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
-    private static OptionsBuilder<TOptions> BindCommand<TCommand, TOptions>(this OptionsBuilder<TOptions> optionsBuilder)
-        where TCommand : Command, IUseCommandBuilder<TCommand>
-        where TOptions : class
-    {
-        return optionsBuilder.Configure<TCommand, IOptions<CommandArgumentMapper<TCommand>>, ParseResult>((options, command, commandArgumentMappers, parseResult) =>
-        {
-            foreach (ArgumentMapper argumentMapper in commandArgumentMappers.Value)
-            {
-                argumentMapper(parseResult, options);
-            }
-        });
-    }
-    public static IServiceCollection AddBoundToCommandOptions<TCommand, TOptions>(this IServiceCollection services)
-        where TCommand : Command, IUseCommandBuilder<TCommand>
-        where TOptions : class
-    {
-        return services
-            .AddOptions<TOptions>().BindCommand<TCommand, TOptions>().Services
-            .AddOptions<CommandArgumentMapper<TCommand>>().Services;
-    }
-
-    public static IServiceCollection AddRootCommand<TRootCommand>(this IServiceCollection services, string[] args)
+    public static CommandRegistrationBuilder<TRootCommand> AddRootCommand<TRootCommand>(this IServiceCollection services, string[] args)
     where TRootCommand : RootCommand, IUseCommandBuilder<TRootCommand>
     {
-        return services.AddCommand<TRootCommand>().AddSingleton(sp =>
+        ArgumentNullException.ThrowIfNull(args);
+        var builder = services.AddCommand<TRootCommand>();
+        services.AddSingleton(sp =>
         {
             return sp.GetRequiredService<TRootCommand>().Parse(args);
         });
-    }
-    public static IServiceCollection AddCommand<TCommand>(this IServiceCollection services)
-        where TCommand : Command, IUseCommandBuilder<TCommand>
-    {
-        return services.AddSingleton(sp =>
-        {
-            return TCommand.CommandFactory(sp, GetArgumentMapperRegistration<TCommand>(sp));
-        });
+        return builder;
     }
 
-    public static IServiceCollection AddCommandWithAsyncHandler<TCommand, THandler>(this IServiceCollection services)
+    public static CommandRegistrationBuilder<TCommand> AddCommand<TCommand>(this IServiceCollection services)
         where TCommand : Command, IUseCommandBuilder<TCommand>
-        where THandler : AsynchronousCommandLineAction
     {
-        return services.AddSingleton<THandler>().AddSingleton(sp =>
-        {
-            return TCommand.CommandFactory(sp, GetArgumentMapperRegistration<TCommand>(sp)).SetAsyncHandler<TCommand, THandler>(sp);
-        });
-    }
-
-    public static IServiceCollection AddCommandWithHandler<TCommand, THandler>(this IServiceCollection services) where TCommand : Command, IUseCommandBuilder<TCommand> where THandler : SynchronousCommandLineAction
-    {
-        return services.AddSingleton<THandler>().AddSingleton(sp =>
-        {
-            return TCommand.CommandFactory(sp, GetArgumentMapperRegistration<TCommand>(sp)).SetHandler<TCommand, THandler>(sp);
-        });
+        ArgumentNullException.ThrowIfNull(services);
+        services.AddOptions<CommandArgumentMapper<TCommand>>();
+        var builder = new CommandRegistrationBuilder<TCommand>(services);
+        services.AddSingleton(builder.CreateCommand);
+        TCommand.ConfigureRegistration(builder);
+        return builder;
     }
 
     public static TCommand SetAsyncHandler<TCommand, THandler>(this TCommand command, IServiceProvider sp) where TCommand : Command, IUseCommandBuilder<TCommand> where THandler : AsynchronousCommandLineAction
@@ -78,8 +43,4 @@ public static class ServiceCollectionExtensions
         return command;
     }
 
-    private static ArgumentMapperRegistration GetArgumentMapperRegistration<TCommand>(IServiceProvider sp) where TCommand : Command, IUseCommandBuilder<TCommand>
-    {
-        return sp.GetRequiredService<IOptions<CommandArgumentMapper<TCommand>>>().Value.Add;
-    }
 }

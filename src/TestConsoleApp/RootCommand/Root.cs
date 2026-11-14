@@ -1,12 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-using Serilog.Events;
+﻿using Serilog.Events;
 
 using System.CommandLine;
 
 using SystemCommandLine.Extensions;
-
-using TestConsoleApp.RootCommand.GreetCommand;
 
 namespace TestConsoleApp.RootCommand;
 
@@ -22,11 +18,13 @@ internal class Root : System.CommandLine.RootCommand, IUseCommandBuilder<Root>
             }).AddToCommand();
     }
 
+    public static void ConfigureRegistration(CommandRegistrationBuilder<Root> builder)
+    {
+        builder.BindOptions<LoggerOptions>();
+    }
+
     public static Root CommandFactory(IServiceProvider sp, ArgumentMapperRegistration mapperRegistration)
     {
-        return new Root(mapperRegistration)
-        {
-            sp.GetRequiredService<Greet>(),
-        };
+        return new Root(mapperRegistration);
     }
 }

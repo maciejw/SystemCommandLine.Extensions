@@ -85,19 +85,23 @@ public class CommandBuilderTests
     {
         IServiceCollection services = new ServiceCollection()
             .AddRootCommand<TestRootCommand>(args.Split(" "))
-            .AddBoundToCommandOptions<TestCommand, TestCommand.TestCommandOptions>();
+            .Services;
         return setup(services).BuildServiceProvider();
     }
     private static ServiceProvider GetServiceProviderWithAsyncHandler(string args)
     {
         return GetServiceProvider(args, services => services
-                .AddCommandWithAsyncHandler<TestCommand, TestCommand.TestAsyncHandler>());
+                .AddCommand<TestCommand>()
+                .WithAsyncHandler<TestCommand.TestAsyncHandler>()
+                .BindOptions<TestCommand.TestCommandOptions>().Services);
     }
 
     private static ServiceProvider GetServiceProviderWithHandler(string args)
     {
         return GetServiceProvider(args, services => services
-                .AddCommandWithHandler<TestCommand, TestCommand.TestHandler>());
+                .AddCommand<TestCommand>()
+                .WithHandler<TestCommand.TestHandler>()
+                .BindOptions<TestCommand.TestCommandOptions>().Services);
     }
     [Fact]
     public void Should_run_synchronous_handler()
