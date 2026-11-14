@@ -60,6 +60,9 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: nuget
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -91,9 +94,15 @@ jobs:
           --configuration Release --no-build -o ./artifacts
           /p:ContinuousIntegrationBuild=true /p:Version=${{ steps.ver.outputs.VERSION }}
 
+      - name: NuGet login (OIDC)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: maciejw
+
       - name: Push to NuGet.org (.nupkg)
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
           dotnet nuget push "./artifacts/SystemCommandLine.Extensions.*.nupkg" \
             --api-key "$NUGET_API_KEY" \
@@ -102,7 +111,7 @@ jobs:
 
       - name: Push to NuGet.org (.snupkg symbols)
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
           dotnet nuget push "./artifacts/SystemCommandLine.Extensions.*.snupkg" \
             --api-key "$NUGET_API_KEY" \
