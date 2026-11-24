@@ -1,5 +1,8 @@
 {
   "profiles": {
+    "TestConsoleApp": {
+      "commandName": "Project"
+    },
     "Wave": {
       "commandName": "Project",
       "commandLineArgs": "wave John \"Good morning\" --shout"

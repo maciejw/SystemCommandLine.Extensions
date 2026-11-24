@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -12,13 +12,13 @@ using TestConsoleApp.RootCommand.WaveCommand;
 
 namespace TestConsoleApp;
 
-internal class Program
+internal static class Program
 {
     public static async Task<int> Main(string[] args)
     {
         IHostBuilder hostBuilder = Host.CreateDefaultBuilder();
 
-        hostBuilder.UseConsoleLifetime();
+        hostBuilder.UseConsoleLifetime(options => options.SuppressStatusMessages = true);
         hostBuilder.UseSerilog((_, sp, lc) => lc
             .WriteTo.Console()
             .Enrich.FromLogContext()
@@ -34,7 +34,7 @@ internal class Program
             services.AddCommand<Wave>();
         });
 
-        IHost host = hostBuilder.Start();
+        using IHost host = hostBuilder.Start();
 
         IHostApplicationLifetime lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
         ParseResult parseResult = host.Services.GetRequiredService<ParseResult>();
